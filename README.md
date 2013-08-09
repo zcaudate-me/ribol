@@ -34,7 +34,7 @@ There are two other conditional restart libraries for clojure - `errorkit` and `
 
 Because we are dealing with exceptions, the best way to do this is to use a test framework. In this case, we are using midje
 
-#### Setup
+#### setup
 
 We setup midje and define two checkers, `has-signal` and `has-content` which strips out keys within the thrown `ExceptionInfo` exception
 
@@ -67,7 +67,7 @@ The keyword `raise` is used to raise an 'issue' which . At the simplest, `raise`
 The data is accessible as the 'content' of the raised 'issue'
 
 ```clojure
-(fact "It contains information that can be accessed
+(fact "The content is accessible through ex-data"
   (raise {:error true})
   => (throws (has-signal :unmanaged)
              (has-content {:error true})))
@@ -77,12 +77,12 @@ The 'content' can be a hash-map, a keyword or a vector of keywords and hash-maps
 
 ```clojure
 (facts
-  ;; A shortcut is to use a keyword to create a map with the value `true`
+  "A shortcut is to use a keyword to create a map with the value `true`"
   (raise :error)
   => (throws (has-signal :unmanaged)
              (has-content {:error true}))
 
-  ;; A vector can be create a map with more powerful descriptions about the issue
+  "A vector can be create a map with more powerful descriptions about the issue"
   (raise [:flag1 :flag2 {:data 10}])
 
   => (throws (has-signal :unmanaged)
