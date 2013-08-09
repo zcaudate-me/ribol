@@ -68,31 +68,29 @@
    (mapv half-int-a [1 2 3 4])
    (on :odd-number [odd-number value]
        (str "odd-number: " odd-number ", value: " value)))
-  => "odd-number: true, value: 1")
+  => "odd-number: true, value: 1"
 
 
-(manage
- (mapv half-int-a [1 2 3 4])
- (on :odd-number [value]
-     (str "hello " value)))
-=> "hello 1"
+  (manage
+   (mapv half-int-a [1 2 3 4])
+   (on :odd-number [value]
+       (str "hello " value)))
+  => "hello 1"
 
-(manage
- (mapv half-int-a [1 2 3 4])
- (on :odd-number [value]
-     (continue (str value))))
-=> ["1" 1 "3" 2]
+  (manage
+   (mapv half-int-a [1 2 3 4])
+   (on :odd-number [value]
+       (continue (str value))))
+  => ["1" 1 "3" 2]
 
-(manage
- (mapv half-int-a [1 2 3 4])
- (on :odd-number [value]
-     (choose :use-custom (/ value 2))))
-=> [1/2 1 3/2 2]
+  (manage
+   (mapv half-int-a [1 2 3 4])
+   (on :odd-number [value]
+       (choose :use-custom (/ value 2))))
+  => [1/2 1 3/2 2])
 
 
 (fact "Raise can specify its own options and a default"
-
-  ;; This says the default action is to return nil
   (raise :error
          (option :return-nil [] nil)
          (default :return-nil))

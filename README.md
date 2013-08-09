@@ -8,6 +8,14 @@ In project.clj, add to dependencies:
 
      [im.chit/ribol "0.1.5"]
 
+### Provides
+
+ - Issue (exception) handling using maps for data as opposed to typed classes
+ - Passing data along with exceptions
+ - Tight integration with `ex-info` and `ex-data`
+ - Five different issue handlers - `catch`, `continue`, `choose`, `escalate` and `default`
+ - A syntax that is not so confusing (for me anyways)
+
 ### Rational:
 In the author's experience, there are two forms of 'exceptions' that a programmer will encounter:
 
@@ -20,9 +28,9 @@ In the author's experience, there are two forms of 'exceptions' that a programme
     - A file not found
     - User input not valid
 
-The common method of `try` and `catch` is not really needed when dealing with the Type 1 of exceptions and a little too weak when dealing with the second. There are numerous resources that explain why this is the case but the net effect is that in order to mitigate these Type 2 exceptions, there requires alot of defensive programming that makes for spegetti code. Conditional restarts provide a way for the top-level application to specify strategies to deal with Type 2 exceptions much more cleanly.
+The common method of `try` and `catch` is not really needed when dealing with the Type 1 exceptions and a little too weak when dealing with those of Type 2. There are numerous resources that explain why this is the case (will put in links). The net effect of using only the `try/catch` paradigm in application code is that in order to mitigate these Type 2 exceptions, there requires a lot of defensive programming. This turns the middle level of the application into spagetti code with program control flow (`try/catch`) mixed in with program logic . Conditional restarts provide a way for the top-level application to specify strategies to deal with Type 2 exceptions much more cleanly.
 
-### Why use ribol?
+### Other Libraries
 
 There are two other conditional restart libraries for clojure - `errorkit` and `swell`
 
@@ -52,12 +60,13 @@ We setup midje and define two checkers, `has-signal` and `has-content` which str
     (-> e ex-data :ribol.core/contents (= content))))
 ```
 
-For brevity reasons, we will be omitting the fact form
+### IMPORTANT: For brevity reasons, we will be omitting the fact form
 
-so `(fact <expression> => <result>)` will be written as `<expression> => <result>` it will be up to the user to put the `(fact)` form around the expression
+`(fact <expression> => <result>)` will be written as `<expression> => <result>` it will be up to the user to put the `(fact)` form around the expression
+
 #### 1 - raise
 
-The keyword `raise` is used to raise an 'issue' which . At the simplest, `raise` just throws an ExceptionInfo object stating what the error is:
+The keyword `raise` is used to raise an 'issue'. At the simplest, when there is no `manage` blocks, `raise` just throws an ExceptionInfo object stating what the error is:
 
 ```clojure
 (raise {:error true})
@@ -262,7 +271,7 @@ The `default` handler just short-circuits the raise process and skips managers f
 The default form can even refer to an option that has to be implemented higher up in scope.
 
 ```clojure
-(defn half-into-d [n]
+(defn half-int-d [n]
   (if (= 0 (mod n 2))
     (quot n 2)
     (raise [:odd-number {:value n}]
@@ -278,10 +287,77 @@ The default form can even refer to an option that has to be implemented higher u
 
 #### 2.5 - on (escalate handler)
 
+The `escalate` form is used to manipulate. In the following example, if a '3' or a '5' is seen, then the flag :three-or-five is added to the issue contents and the :odd-number flag is set to false:
 
+```clojure
+(defn half-array-d [arr]
+  (manage
+    (mapv half-int-d arr)
+    (on {:value (fn [v] (#{3 5} v))} [value]
+        (escalate [:three-or-five {:odd-number false}]))))
+
+
+(manage
+ (half-array-d [1 2 3 4 5])
+ (on :odd-number [value]
+     (continue (* value 10)))
+ (on :three-or-five [value]
+     (continue (* value 100))))
+ => [10 1 300 2 500]
+```
+
+#### 3 - Overwriting defaults
+
+How the program behaves can be changed by higher level managers through escalate
+
+```clojure
+(defn half-int-e [n]
+  (manage
+    (if (= 0 (mod n 2))
+      (quot n 2)
+      (raise [:odd-number {:value n}]
+        (option :use-nil [] nil)
+        (option :use-custom [n] n)
+        (default :use-nil)))
+
+     (on :odd-number []
+       (escalate :odd-number
+         (option :use-zero [] 0)
+         (default :use-custom :nan)))))
+
+(half-int-e 3) => :nan ;; (instead of nil)
+
+(mapv half-int-e [1 2 3 4])
+=> [:nan 1 :nan 2] ;; notice that the default is overridden
+
+(manage
+ (mapv half-int-e [1 2 3 4])
+ (on :odd-number []
+   (choose :use-zero)))
+ => [0 1 0 2] ;; using an escalated option
+```
+
+Options specified higher up are favored:
+
+```clojure
+(manage
+ (mapv half-int-e [1 2 3 4])
+ (on :odd-number []
+   (choose :use-nil)))
+ => [nil 1 nil 2] ;; using th
+
+ (manage
+  (mapv half-int-e [1 2 3 4])
+  (on :odd-number []
+    (choose :use-nil))
+  (option :use-nil [] nil))
+=> nil  ;; notice that the :use-nil is overridden by the higher level manager
+```
+
+### Todos
+- More test cases
 
 ## License
-
 Copyright © 2013 Chris Zheng
 
 Distributed under the MIT License
