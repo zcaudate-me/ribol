@@ -36,7 +36,7 @@ Because we are dealing with exceptions, the best way to do this is to use a test
 
 #### Setup
 
-We setup
+We setup midje and define two checkers, `has-signal` and `has-content` which strips out keys within the thrown `ExceptionInfo` exception
 
 ```clojure
 (ns example.ribol
@@ -44,34 +44,41 @@ We setup
             [midje.sweet :refer :all]))
 
 (defn has-signal [sigtype]
-  (fn [ex]
-    (-> ex ex-data :ribol.core/signal (= sigtype))))
+  (fn [e]
+    (-> e ex-data :ribol.core/signal (= sigtype))))
 
 (defn has-content [content]
   (fn [ex]
-    (-> ex ex-data :ribol.core/contents (= content))))
+    (-> e ex-data :ribol.core/contents (= content))))
 ```
 
 #### raise
 
-Here are some uses for raise
+The keyword `raise` is used to raise an 'issue' which . At the simplest, `raise` just throws an ExceptionInfo object stating what the error is:
 
 ```clojure
 (fact "Raise by itself throws an ExceptionInfo"
-
   ;; Issues are raise in the form of a hashmap
   (raise {:error true})
   => (throws clojure.lang.ExceptionInfo
-             " :unmanaged - {:error true}")
+             " :unmanaged - {:error true}"))
+```
 
-  ;; It contains information that can be accessed
+The data is accessible as the 'content' of the raised 'issue'
+
+```clojure
+(fact "It contains information that can be accessed
   (raise {:error true})
   => (throws (has-signal :unmanaged)
-             (has-content {:error true}))
+             (has-content {:error true})))
+```
 
+The 'content' can be a hash-map, a keyword or a vector of keywords and hash-maps
+
+```clojure
+(facts
   ;; A shortcut is to use a keyword to create a map with the value `true`
   (raise :error)
-
   => (throws (has-signal :unmanaged)
              (has-content {:error true}))
 
@@ -82,7 +89,6 @@ Here are some uses for raise
              (has-content {:flag1 true
                            :flag2 true
                            :data 10})))
-
 ```
 
 
