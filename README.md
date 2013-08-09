@@ -14,7 +14,6 @@ In project.clj, add to dependencies:
  - Passing data along with exceptions
  - Tight integration with `ex-info` and `ex-data`
  - Five different issue handlers - `catch`, `continue`, `choose`, `escalate` and `default`
- - A syntax that is not so confusing (for me anyways)
 
 ### Rational:
 In the author's experience, there are two forms of 'exceptions' that a programmer will encounter:
@@ -28,16 +27,18 @@ In the author's experience, there are two forms of 'exceptions' that a programme
     - A file not found
     - User input not valid
 
-The common method of `try` and `catch` is not really needed when dealing with the Type 1 exceptions and a little too weak when dealing with those of Type 2. There are numerous resources that explain why this is the case (will put in links). The net effect of using only the `try/catch` paradigm in application code is that in order to mitigate these Type 2 exceptions, there requires a lot of defensive programming. This turns the middle level of the application into spagetti code with program control flow (`try/catch`) mixed in with program logic . Conditional restarts provide a way for the top-level application to specify strategies to deal with Type 2 exceptions much more cleanly.
+The common method of `try` and `catch` is not really needed when dealing with the Type 1 exceptions and a little too weak when dealing with those of Type 2. There are numerous resources that explain why this is the case. This is from a question I asked on [stackoverflow](http://stackoverflow.com/questions/18008935/is-there-a-book-guide-for-implementing-a-conditional-restart-system). 
+
+The net effect of using only the `try/catch` paradigm in application code is that in order to mitigate these Type 2 exceptions, there requires a lot of defensive programming. This turns the middle level of the application into spagetti code with program control flow (`try/catch`) mixed in with program logic . Conditional restarts provide a way for the top-level application to specify strategies to deal with Type 2 exceptions much more cleanly.
 
 ### Other Libraries
 
-There are two other conditional restart libraries for clojure - `errorkit` and `swell`
+There are three other conditional restart libraries for clojure - [errorkit](https://github.com/richhickey/clojure-contrib/blob/master/src/main/clojure/clojure/contrib/error_kit.clj), [swell](https://github.com/hugoduncan/swell) and [conditions](https://github.com/bwo/conditions)
 
   - `errorkit` provided the guiding architecture for `ribol`. However, ribol updates `errorkit` with more options for controlling exceptions, uses `ex-info` which is part of core and has an updated and more understandable syntax.
 
-  - `swell` was written specifically to work with the `slingshot` `try+/catch+` packages and I thought that the two together carried too much baggage. `ribol` has no such dependencies.
-
+  - `swell` and `conditions` are written to work with [slingshot](https://github.com/scgilardi/slingshot) and `try+/catch+`. I'm not  familiar with the advantages/disadvantages of using `slingshot` over the native `ex-info` data carrying implementation. 
+  
 ## Tutorial
 
 Because we are dealing with exceptions, the best way to do this is to use a test framework so that exceptions can be seen. In this case, we are using midje:

@@ -2,35 +2,37 @@
   (:require [ribol.core :refer :all]
             [midje.sweet :refer :all]))
 
+#doc {:section "one"}
+
 (defn has-signal [sigtype]
   (fn [ex]
     (-> ex ex-data :ribol.core/signal (= sigtype))))
+
 
 (defn has-content [content]
   (fn [ex]
     (-> ex ex-data :ribol.core/contents (= content))))
 
+
 (fact "Raise by itself throws an ExceptionInfo"
 
-  ;; Issues are raise in the form of a hashmap
+  #doc {:label "one" :caption "Raising an exception"}
   (raise {:error true})
   => (throws clojure.lang.ExceptionInfo
              " :unmanaged - {:error true}")
 
-  ;; It contains information that can be accessed
+  "It contains information that can be accessed"
   (raise {:error true})
   => (throws (has-signal :unmanaged)
              (has-content {:error true}))
 
-  ;; A shortcut is to use a keyword to create a map with the value `true`
+  "A shortcut is to use a keyword to create a map with the value `true`"
   (raise :error)
-
   => (throws (has-signal :unmanaged)
              (has-content {:error true}))
 
-  ;; A vector can be create a map with more powerful descriptions about the issue
+  "A vector can be create a map with more powerful descriptions about the issue"
   (raise [:flag1 :flag2 {:data 10}])
-
   => (throws (has-signal :unmanaged)
              (has-content {:flag1 true
                            :flag2 true
