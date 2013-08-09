@@ -82,15 +82,8 @@
              (has-content {:odd-number true
                            :value 1}))
 
-
-  (try
-    (map half-int-a [1 2 3 4])
-    (catch Throwable t
-      "hello"))
-  => "hello"
-
   (manage
-
+   (mapv half-int-a [1 2 3 4])
    (on :odd-number [value]
        (str "hello " value)))
   => "hello 1"
@@ -98,12 +91,11 @@
   (manage
    (mapv half-int-a [1 2 3 4])
    (on :odd-number [value]
-       (continue value)))
-  => [1 1 3 2]
+       (continue (str value))))
+  => ["1" 1 "3" 2]
 
   (manage
    (mapv half-int-a [1 2 3 4])
    (on :odd-number [value]
        (choose :use-custom (/ value 2))))
-  => [1/2 1 3/2 2]
-  )
+  => [1/2 1 3/2 2])
