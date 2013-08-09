@@ -34,7 +34,7 @@ There are two other conditional restart libraries for clojure - `errorkit` and `
 
 Because we are dealing with exceptions, the best way to do this is to use a test framework. In this case, we are using midje
 
-#### setup
+#### 0 - setup
 
 We setup midje and define two checkers, `has-signal` and `has-content` which strips out keys within the thrown `ExceptionInfo` exception
 
@@ -52,7 +52,7 @@ We setup midje and define two checkers, `has-signal` and `has-content` which str
     (-> e ex-data :ribol.core/contents (= content))))
 ```
 
-#### raise
+#### 1 - raise
 
 The keyword `raise` is used to raise an 'issue' which . At the simplest, `raise` just throws an ExceptionInfo object stating what the error is:
 
@@ -73,7 +73,7 @@ The data is accessible as the 'content' of the raised 'issue'
              (has-content {:error true})))
 ```
 
-The 'content' can be a hash-map, a keyword or a vector of keywords and hash-maps
+The 'content' of the issue can be a hash-map, a keyword or a vector of keywords and hash-maps
 
 ```clojure
 (facts
@@ -90,6 +90,159 @@ The 'content' can be a hash-map, a keyword or a vector of keywords and hash-maps
                            :flag2 true
                            :data 10})))
 ```
+
+#### 2 - manage
+
+Firstly we define a function `half-int-a` to test. It basically checks to see if the input is odd, if it is, it raises an exception
+
+```clojure
+(defn half-int-a [n]
+  (if (= 0 (mod n 2))
+    (quot n 2)
+    (raise [:odd-number {:value n}])))
+
+(fact "Testing half-int-a"
+  (half-int-a 2) => 1
+  (half-int-a 3)
+  => (throws (has-signal :unmanaged)
+             (has-content {:odd-number true
+                           :value 3}))
+
+  (mapv half-int-a [2 4 6]) => [1 2 3]
+  (mapv half-int-a [2 3 6])
+  => (throws (has-signal :unmanaged)
+             (has-content {:odd-number true
+                           :value 3})))
+```
+
+#### 2.1 - on (catch handler)
+
+Within the manage form, handlers can be specified with `on`:
+
+```clojure
+(manage
+ (mapv half-int-a [1 2 3 4])
+ (on :odd-number []
+   "odd-number-exception"))
+=> "odd-number-exception"
+```
+
+This resembles the classical try/catch situation and can be written as:
+
+```clojure
+(try
+ (mapv half-int-a [1 2 3 4])
+ (catch Throwable t
+   "odd-number-exception"))
+=> "odd-number-exception"
+```
+
+However, we can retrieve the contents of the issue by providing map keys that we wish to retrieve:
+
+```clojure
+(manage
+ (mapv half-int-a [1 2 3 4])
+ (on :odd-number [odd-number value]
+   (str "odd-number: " odd-number ", value: " value)))
+ => "odd-number: true, value: 1"
+```
+
+#### 2.2 - on (continue handler)
+
+The `continue` special-form is used to continue the operation from the point that the issue was raised:
+
+```clojure
+(manage
+ (mapv half-int-a [1 2 3 4])
+ (on :odd-number []
+   (continue :nan)))
+=> [:nan 1 :nan 2]
+```
+
+Again, it can take keys of the 'contents' of the raised 'issue'
+
+```clojure
+(manage
+ (mapv half-int-a [1 2 3 4])
+ (on :odd-number [value]
+     (continue (str value))))
+=> ["1" 1 "3" 2]
+```
+
+#### 2.3 - on (choose handler)
+
+The `choose` special form is used to jump to a `option`:
+
+```clojure
+(defn half-int-b [n]
+  (if (= 0 (mod n 2))
+    (quot n 2)
+    (raise [:odd-number {:value n}]
+      (option :use-nil [] nil)
+      (option :use-nan [] nan)
+      (option :use-custom [n] n))))
+
+(manage
+ (mapv half-int-b [1 2 3 4])
+ (on :odd-number [value]
+     (choose :use-custom (/ value 2))))
+=> [1/2 1 3/2 2]
+```
+
+It options can also be specified in the manage block itself
+
+```clojure
+(manage
+ (mapv half-int-b [1 2 3 4])
+ (on :odd-number [value]
+     (choose :use-empty (/ value 2)))
+ (option :use-empty [] [])
+=> []
+```
+
+#### 2.4 - on (default handler)
+
+The keyword `default` is used to specify what happens if the issue has not been handled. It the case below, the default option is to choose the :use-custom option with argument :odd.
+
+```clojure
+(defn half-int-c [n]
+  (if (= 0 (mod n 2))
+    (quot n 2)
+    (raise [:odd-number {:value n}]
+      (option :use-nil [] nil)
+      (option :use-custom [n] n)
+      (default :use-custom :odd))))
+
+(half-int-c 3)
+=> :odd
+```
+
+The default form in
+
+```clojure
+(manage
+ (mapv half-int-b [1 2 3 4])
+ (on :odd-number [value] (default)))
+=> [:odd 1 :odd 2]
+```
+
+The default form can even refer to an option that has to be implemented higher up in scope
+
+```clojure
+(defn half-into-d [n]
+  (if (= 0 (mod n 2))
+    (quot n 2)
+    (raise [:odd-number {:value n}]
+      (default :use-empty))))
+
+(manage
+ (mapv half-int-d [1 2 3 4])
+ (on :odd-number [value]
+   (option :use-empty [] [])))
+=> []
+```
+
+#### 2.5 - on (escalate handler)
 
 
 
