@@ -28,11 +28,11 @@ There are two other conditional restart libraries for clojure - `errorkit` and `
 
   - `errorkit` provided the guiding architecture for `ribol`. However, ribol updates `errorkit` with more options for controlling exceptions, uses `ex-info` which is part of core and has an updated and more understandable syntax.
 
-  - `swell` was written specifically to work with the `slingshot` `try+/catch+` packages and I thought that the two together carried too much baggage. `ribol` has no dependencies.
+  - `swell` was written specifically to work with the `slingshot` `try+/catch+` packages and I thought that the two together carried too much baggage. `ribol` has no such dependencies.
 
 ## Tutorial
 
-Because we are dealing with exceptions, the best way to do this is to use a test framework. In this case, we are using midje
+Because we are dealing with exceptions, the best way to do this is to use a test framework so that exceptions can be seen. In this case, we are using midje:
 
 #### 0 - setup
 
@@ -52,67 +52,105 @@ We setup midje and define two checkers, `has-signal` and `has-content` which str
     (-> e ex-data :ribol.core/contents (= content))))
 ```
 
+For brevity reasons, we will be omitting the fact form
+
+so `(fact <expression> => <result>)` will be written as `<expression> => <result>` it will be up to the user to put the `(fact)` form around the expression
 #### 1 - raise
 
 The keyword `raise` is used to raise an 'issue' which . At the simplest, `raise` just throws an ExceptionInfo object stating what the error is:
 
 ```clojure
-(fact "Raise by itself throws an ExceptionInfo"
-  ;; Issues are raise in the form of a hashmap
-  (raise {:error true})
-  => (throws clojure.lang.ExceptionInfo
-             " :unmanaged - {:error true}"))
+(raise {:error true})
+=> (throws clojure.lang.ExceptionInfo
+           " :unmanaged - {:error true}")
 ```
 
-The data is accessible as the 'content' of the raised 'issue'
+The data is accessible as the 'content' of the raised 'issue':
 
 ```clojure
-(fact "The content is accessible through ex-data"
-  (raise {:error true})
-  => (throws (has-signal :unmanaged)
-             (has-content {:error true})))
+(raise {:error true})
+=> (throws (has-signal :unmanaged)
+           (has-content {:error true}))
 ```
 
-The 'content' of the issue can be a hash-map, a keyword or a vector of keywords and hash-maps
+The 'contents' of the issue can be a hash-map, a keyword or a vector of keywords and hash-maps. This is a shortcut is to use a keyword to create a map with the value `true`:
 
 ```clojure
-(facts
-  "A shortcut is to use a keyword to create a map with the value `true`"
-  (raise :error)
-  => (throws (has-signal :unmanaged)
-             (has-content {:error true}))
+(raise :error)
+=> (throws (has-signal :unmanaged)
+           (has-content {:error true}))
+```
 
-  "A vector can be create a map with more powerful descriptions about the issue"
-  (raise [:flag1 :flag2 {:data 10}])
+A vector can be create a map with more powerful descriptions about the issue:
 
-  => (throws (has-signal :unmanaged)
-             (has-content {:flag1 true
-                           :flag2 true
-                           :data 10})))
+```clojure
+(raise [:flag1 :flag2 {:data 10}])
+=> (throws (has-signal :unmanaged)
+           (has-content {:flag1 true
+                         :flag2 true
+                         :data 10}))
+```
+
+#### 1.1 - raise (option and default)
+
+Strategies for an unmanaged issue can be specified within the raise form. The first specifies two options and the specifies the default option as :use-nil
+
+```clojure
+(raise :error
+  (option :use-nil [] nil)
+  (option :use-custom [n] n)
+  (default :use-nil)
+=> nil
+```
+
+This example sets the default as :use-custom with an argument of 10
+
+```clojure
+(raise :error
+  (option :use-nil [] nil)
+  (option :use-custom [n] n)
+  (default :use-custom 10)
+=> 10
+```
+
+If there is no default selection, then an exception will be thrown as per previously seen:
+
+```clojure
+(raise :error
+  (option :use-nil [] nil)
+  (option :use-custom [n] n))
+ => (throws (has-signal :unmanaged)
+            (has-content {:error true}))
 ```
 
 #### 2 - manage
 
-Firstly we define a function `half-int-a` to test. It basically checks to see if the input is odd, if it is, it raises an exception
+When an issue is raised, the manage blocks set up execution scope and provide handlers and options to manage program flow. We define a function `half-int-a`, checking to see if the input is even, if is it, divides by 2. if it is not, it raises an :odd-number issue.
 
 ```clojure
 (defn half-int-a [n]
   (if (= 0 (mod n 2))
     (quot n 2)
     (raise [:odd-number {:value n}])))
+```
 
-(fact "Testing half-int-a"
-  (half-int-a 2) => 1
-  (half-int-a 3)
-  => (throws (has-signal :unmanaged)
+The output of `half-int-a` can be seen below:
+
+```clojure
+(half-int-a 2) => 1
+(half-int-a 3)  => (throws (has-signal :unmanaged)
              (has-content {:odd-number true
                            :value 3}))
+```
 
-  (mapv half-int-a [2 4 6]) => [1 2 3]
-  (mapv half-int-a [2 3 6])
-  => (throws (has-signal :unmanaged)
-             (has-content {:odd-number true
-                           :value 3})))
+This is the output of `half-int-a` used within a higher-order function:
+
+```clojure
+(mapv half-int-a [2 4 6]) => [1 2 3]
+(mapv half-int-a [2 3 6])
+=> (throws (has-signal :unmanaged)
+           (has-content {:odd-number true
+                         :value 3})))
 ```
 
 #### 2.1 - on (catch handler)
@@ -195,14 +233,14 @@ It options can also be specified in the manage block itself
 (manage
  (mapv half-int-b [1 2 3 4])
  (on :odd-number [value]
-     (choose :use-empty (/ value 2)))
- (option :use-empty [] [])
+     (choose :use-empty))
+ (option :use-empty [] []))
 => []
 ```
 
 #### 2.4 - on (default handler)
 
-The keyword `default` is used to specify what happens if the issue has not been handled. It the case below, the default option is to choose the :use-custom option with argument :odd.
+The `default` handler just short-circuits the raise process and skips managers further up to tell the function to use its default option.
 
 ```clojure
 (defn half-int-c [n]
@@ -212,12 +250,7 @@ The keyword `default` is used to specify what happens if the issue has not been 
       (option :use-nil [] nil)
       (option :use-custom [n] n)
       (default :use-custom :odd))))
-
-(half-int-c 3)
-=> :odd
 ```
-
-The default form in
 
 ```clojure
 (manage
@@ -226,7 +259,7 @@ The default form in
 => [:odd 1 :odd 2]
 ```
 
-The default form can even refer to an option that has to be implemented higher up in scope
+The default form can even refer to an option that has to be implemented higher up in scope.
 
 ```clojure
 (defn half-into-d [n]
@@ -237,8 +270,9 @@ The default form can even refer to an option that has to be implemented higher u
 
 (manage
  (mapv half-int-d [1 2 3 4])
+ (option :use-empty [] [])
  (on :odd-number [value]
-   (option :use-empty [] [])))
+   (default)))
 => []
 ```
 
