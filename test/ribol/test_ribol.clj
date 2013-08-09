@@ -2,7 +2,7 @@
   (:require [ribol.core :refer :all]
             [midje.sweet :refer :all]))
 
-#doc {:section "one"}
+;;#doc {:section "one"}
 
 (defn has-signal [sigtype]
   (fn [ex]
@@ -16,7 +16,7 @@
 
 (fact "Raise by itself throws an ExceptionInfo"
 
-  #doc {:label "one" :caption "Raising an exception"}
+ ;; #doc {:label "one" :caption "Raising an exception"}
   (raise {:error true})
   => (throws clojure.lang.ExceptionInfo
              " :unmanaged - {:error true}")
@@ -89,7 +89,14 @@
    (mapv half-int-a [1 2 3 4])
    (on :odd-number [value]
        (choose :use-custom (/ value 2))))
-  => [1/2 1 3/2 2])
+  => [1/2 1 3/2 2]
+
+  (manage
+   (mapv half-int-a [1 2 3 4])
+   (on :odd-number [value]
+       (fail {:fail-with (* 10 value)})))
+  => (throws (has-signal :failure)
+             (has-content {:odd-number true :fail-with 10 :value 1})))
 
 
 (fact "Raise can specify its own options and a default"

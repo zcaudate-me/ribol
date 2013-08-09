@@ -80,6 +80,10 @@
   [issue]
   (create-signal issue :unmanaged))
 
+(defn- create-failure-signal
+  [issue contents]
+  (create-signal (update-in issue [:contents] merge contents) :failure))
+
 (defn- raise-valid-handler [issue handlers]
   (if-let [h (first handlers)]
     (if (check-contents (:contents issue) (:checker h))
@@ -125,6 +129,13 @@
 (defn- raise-continue [issue handler]
   ((:fn handler) (:contents issue)))
 
+(defn- raise-fail [issue handler]
+  (let [contents  (:contents issue)
+        ncontents (parse-contents
+                   ((:contents-fn handler) contents))
+        sig (create-failure-signal issue ncontents)]
+    (throw sig)))
+
 (defn- raise-catch [issue handler manager]
   (let [sig (create-catch-signal issue (:id manager) (:fn handler))]
     (throw sig)))
@@ -149,6 +160,7 @@
           :escalate (raise-escalate issue h managers optmap)
           :catch (raise-catch issue h mgr)
           :choose (raise-choose issue h mgr optmap)
+          :fail (raise-fail issue h)
           :default (raise-unhandled issue optmap)))
       (recur issue (next managers) optmap))
     (raise-unhandled issue optmap)))
@@ -180,16 +192,20 @@
         :arglists '[label args & body]}
   option)
 
-(def #^{:doc "Special form to be used inside 'raise', 'escalate' 'on' blocks. It can be used
-   within raise and escalate forms to override the default option of a raised issue. Or it
-   can be used in 'on' forms to indicate that the default option of an issue is to be used."
+(def #^{:doc "It can be used within 'raise' and 'escalate' forms to override the
+   default option of a raised issue. Or it can be used in 'on' forms to indicate
+   that the default option of an issue is to be used."
         :arglists '("within on form:" [& args]
                     "within raise and escalate forms:" [label & args ])}
   default)
 
+(def #^{:doc "Special form to be used inside 'on' blocks. It short-circuits higher level managers to throw a failure signal"
+        :arglists '([] [contents])}
+  fail)
+
 (def sp-forms {:raise #{#'option #'default}
                :manage #{#'on #'option}
-               :on #{#'continue #'escalate #'choose}})
+               :on #{#'continue #'escalate #'choose #'fail #'default}})
 
 (defn- is-special-form [k form]
   (and (list? form)
@@ -266,6 +282,7 @@
         #'escalate :escalate
         #'choose   :choose
         #'default  :default
+        #'fail     :fail
         :catch)
       :catch))
 
@@ -285,6 +302,10 @@
    :default-fn `(fn [{:keys ~params}]
                   ~(parse-default-form forms))})
 
+(defn- parse-on-fail [params [_ & [contents]]]
+  {:contents-fn `(fn [{:keys ~params}]
+                   (or ~contents {}))})
+
 (defn- parse-on [chk params fbody rbody]
   (let [t (parse-on-type fbody)
         h {:type t :checker chk}]
@@ -295,6 +316,7 @@
       :escalate (merge h (parse-on-escalate params fbody))
       :choose  (merge h (parse-on-choose params fbody))
       :continue (merge h (parse-on-continue params fbody))
+      :fail (merge h (parse-on-fail params fbody))
       :default h)))
 
 (defn- parse-handler-forms [forms]
@@ -315,3 +337,26 @@
         optmap (zipmap (keys options) (repeat id))
         manager {:id id :handlers handlers :options options}]
     `(manage-bind ~manager ~optmap ~@body-forms)))
+
+(defn make-catch-forms [exceptions content sp-forms]
+  (map (fn [ex]
+         `(catch ~ex t#
+            (raise ~content ~@sp-forms)))
+       exceptions))
+
+(defmacro raise-on
+  [exceptions content form & forms]
+  (let [exceptions
+        (cond (symbol? exceptions) [exceptions]
+              (vector? exceptions) exceptions
+              :else (error "RAISE_ON: " exceptions
+                           " can only be a classname or vector of classnames"))
+        sp-fn #(is-special-form :raise %)
+        forms (cons form forms)
+        body-forms (filter (complement sp-fn) forms)
+        sp-forms (filter sp-fn forms)
+        catch-forms (make-catch-forms exceptions content sp-forms)]
+    `(try ~@body-forms ~@catch-forms)))
+
+(defmacro raise-on-all [content form & forms]
+  `(raise-on Throwable ~content ~form ~@forms))
