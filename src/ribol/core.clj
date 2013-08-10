@@ -76,13 +76,13 @@
   [issue target label args]
   (create-signal issue :default ::target target ::label label ::args args))
 
-(defn- create-unmanaged-signal
-  [issue]
-  (create-signal issue :unmanaged))
-
-(defn- create-failure-signal
-  [issue contents]
-  (create-signal (update-in issue [:contents] merge contents) :failure))
+(defn- create-exception
+  ([issue]
+     (let [contents (:contents issue)
+           msg (str (:msg issue) " - " contents)]
+       (ex-info msg contents)))
+  ([issue contents]
+     (create-exception (update-in issue [:contents] merge contents))))
 
 (defn- raise-valid-handler [issue handlers]
   (if-let [h (first handlers)]
@@ -91,8 +91,8 @@
       (recur issue (next handlers)))))
 
 (defn- default-unhandled-fn [issue]
-  (let [sig (create-unmanaged-signal issue)]
-    (throw sig)))
+  (let [ex (create-exception issue)]
+    (throw ex)))
 
 (defn- raise-unhandled [issue optmap]
   (if-let [[label & args] (:default issue)]
@@ -133,8 +133,8 @@
   (let [contents  (:contents issue)
         ncontents (parse-contents
                    ((:contents-fn handler) contents))
-        sig (create-failure-signal issue ncontents)]
-    (throw sig)))
+        ex (create-exception issue ncontents)]
+    (throw ex)))
 
 (defn- raise-catch [issue handler manager]
   (let [sig (create-catch-signal issue (:id manager) (:fn handler))]
@@ -295,8 +295,12 @@
                (vector ~@args))})
 
 (defn- parse-on-escalate [params [_ contents & forms]]
+  (let [[contents forms]
+        (if #(is-special-form :escalate contents)
+          [nil (cons contents forms)]
+          [contents forms])])
   {:contents-fn `(fn [{:keys ~params}]
-                   (or ~contents nil))
+                   (or ~contents {}))
    :options-fn `(fn [{:keys ~params}]
                   ~(parse-option-forms forms))
    :default-fn `(fn [{:keys ~params}]
@@ -360,3 +364,6 @@
 
 (defmacro raise-on-all [content form & forms]
   `(raise-on Throwable ~content ~form ~@forms))
+
+(defmacro anticipate [exvec & body]
+  )
