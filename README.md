@@ -10,7 +10,7 @@ In project.clj, add to dependencies:
 
 ### Introduction
 
-`ribol` provides a conditional restart system. It can also be thought of as an issue resolution system or `try++/catch++`. The library provides an alternative channel for resolving 'issues' (we use 'issues' here to differentiate from 'exceptions', although they are pretty much the same thing). It models a management structure, in which issues are reported to management, who then what course of action to take depending upon the issue and their own level of expertise:
+`ribol` provides a conditional restart system. It can also be thought of as an issue resolution system or `try++/catch++`. The library provides an alternative channel for resolving 'issues' (we use 'issues' here to differentiate from 'exceptions', although they are pretty much the same thing). It models a management structure, in which issues are reported to management and each level of management can then decide what course of action to take depending upon the issue and their own level of expertise:
 
 - When circumstances arise that need the attention of higher level processes, an 'issue' would be raised that can be managed by any higher level process.
 
