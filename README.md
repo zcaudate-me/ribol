@@ -6,14 +6,28 @@
 
 In project.clj, add to dependencies:
 
-     [im.chit/ribol "0.1.5"]
+     [im.chit/ribol "0.2.1"]
 
-### Provides
+### Introduction
 
- - Issue (exception) handling using maps for data as opposed to typed classes
- - Passing data along with exceptions
- - Tight integration with `ex-info` and `ex-data`
- - Five different issue handlers - `catch`, `continue`, `choose`, `escalate` and `default`
+`ribol` provides a conditional restart system. For those unfamiliar with what this is, it can be thought of as an issue resolution system or `try++/catch++`. The library provides a communication channel for resolving issues (we use issues here to differentiate from exceptions, although they are pretty the same thing). It models a management structure, in which issues are reported to management, who then what course of action to take depending upon the issue and their own level of expertise:
+
+- When circumstances arise that need the attention of higher level processes, an 'issue' would be raised that can be managed by any higher level process.
+
+- An issue must have data as well as additional information attached:
+  - options that can be taken to resolve the issue
+  - a default option if there is no management intervention.
+
+- Issues are managed through handlers that check for the nature of the issue and come up with the proper resolution process. There are six ways that a manager can deal with a raised issue:
+
+  - directly (same as try/catch)
+  - using `continue` to keep going with a specified value
+  - using `choose` to specify an option
+  - using `escalate` to notify higher level managers
+  - using `default` to allow the issue to resolve itself
+  - using `fail` to throw an exception
+
+Using these six different different issue resolution commands, a programmer has the richness of language beyond the simple 'try/catch' statement at his/her command to be able to craft very complex process control flow strategies without mixing logic handling code in the middle tier. It can also create new ways of thinking about the problem beyond the standard throw/catch mechanism and offer more elegant ways to build programs.
 
 ### Rational:
 In the author's experience, there are two forms of 'exceptions' that a programmer will encounter:
@@ -27,18 +41,34 @@ In the author's experience, there are two forms of 'exceptions' that a programme
     - A file not found
     - User input not valid
 
-The common method of `try` and `catch` is not really needed when dealing with the Type 1 exceptions and a little too weak when dealing with those of Type 2. There are numerous resources that explain why this is the case. This is from a question I asked on [stackoverflow](http://stackoverflow.com/questions/18008935/is-there-a-book-guide-for-implementing-a-conditional-restart-system). 
+The common method of `try` and `catch` is not really needed when dealing with the Type 1 exceptions and a little too weak when dealing with those of Type 2. There are numerous resources that explain why this is the case. This is from a question I asked on [stackoverflow](http://stackoverflow.com/questions/18008935/is-there-a-book-guide-for-implementing-a-conditional-restart-system).
 
 The net effect of using only the `try/catch` paradigm in application code is that in order to mitigate these Type 2 exceptions, there requires a lot of defensive programming. This turns the middle level of the application into spagetti code with program control flow (`try/catch`) mixed in with program logic . Conditional restarts provide a way for the top-level application to specify strategies to deal with Type 2 exceptions much more cleanly.
 
-### Other Libraries
+### Comparisons to Other Libraries
 
 There are three other conditional restart libraries for clojure - [errorkit](https://github.com/richhickey/clojure-contrib/blob/master/src/main/clojure/clojure/contrib/error_kit.clj), [swell](https://github.com/hugoduncan/swell) and [conditions](https://github.com/bwo/conditions)
 
   - `errorkit` provided the guiding architecture for `ribol`. However, ribol updates `errorkit` with more options for controlling exceptions, uses `ex-info` which is part of core and has an updated and more understandable syntax.
 
-  - `swell` and `conditions` are written to work with [slingshot](https://github.com/scgilardi/slingshot) and `try+/catch+`. I'm not  familiar with the advantages/disadvantages of using `slingshot` over the native `ex-info` data carrying implementation. 
-  
+  - `swell` and `conditions` are written to work with [slingshot](https://github.com/scgilardi/slingshot) and `try+/catch+`. I'm not  familiar with the advantages/disadvantages of using `slingshot` over the native `ex-info` data carrying implementation.
+
+  - `ribol` offers three more ways of handling error: `escalate`, `fail` and `default`. As of version 0.2 of ribol, handlers are now much more flexible. AFAIK, it is the only library that allows this type of switching:
+
+```clojure
+(manage (manage
+           (mapv (fn [n]
+                   (raise [:error {:data n}]))
+                 [1 2 3 4 5 6 7 8])
+           (on :error [data]
+               (if (> data 5)
+                 (escalate :too-big)
+                 (continue data))))
+          (on :too-big [data]
+              (continue (- data))))
+  [1 2 3 4 5 -6 -7 -8])
+```
+
 ## Tutorial
 
 Because we are dealing with exceptions, the best way to do this is to use a test framework so that exceptions can be seen. In this case, we are using midje:
@@ -52,13 +82,9 @@ We setup midje and define two checkers, `has-signal` and `has-content` which str
   (:require [ribol.core :refer :all]
             [midje.sweet :refer :all]))
 
-(defn has-signal [sigtype]
-  (fn [e]
-    (-> e ex-data :ribol.core/signal (= sigtype))))
-
-(defn has-content [content]
+(defn has-data [data]
   (fn [ex]
-    (-> e ex-data :ribol.core/contents (= content))))
+    (-> e ex-data (= content))))
 ```
 
 ### IMPORTANT: For brevity reasons, we will be omitting the fact form
@@ -79,8 +105,7 @@ The data is accessible as the 'content' of the raised 'issue':
 
 ```clojure
 (raise {:error true})
-=> (throws (has-signal :unmanaged)
-           (has-content {:error true}))
+=> (throws (has-data {:error true}))
 ```
 
 The 'contents' of the issue can be a hash-map, a keyword or a vector of keywords and hash-maps. This is a shortcut is to use a keyword to create a map with the value `true`:

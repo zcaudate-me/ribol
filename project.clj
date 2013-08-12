@@ -1,4 +1,4 @@
-(defproject im.chit/ribol "0.1.5"
+(defproject im.chit/ribol "0.2.1"
   :description "Conditional Restart Library for Clojure"
   :url "http://www.github.com/zaudate/ribol"
   :license {:name "The MIT License"

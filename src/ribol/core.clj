@@ -65,16 +65,12 @@
     (ex-info msg data)))
 
 (defn- create-catch-signal
-  [issue target f]
-  (create-signal issue :catch ::target target ::fn f))
+  [target value]
+  (ex-info "catch" {::signal :catch ::target target ::value value}))
 
 (defn- create-choose-signal
-  [issue target label f]
-  (create-signal issue :choose ::target target ::label label ::args-fn f))
-
-(defn- create-default-signal
-  [issue target label args]
-  (create-signal issue :default ::target target ::label label ::args args))
+  [target label args]
+  (ex-info "choose" {::signal :choose ::target target ::label label ::args args}))
 
 (defn- create-exception
   ([issue]
@@ -94,76 +90,60 @@
   (let [ex (create-exception issue)]
     (throw ex)))
 
-(defn- raise-unhandled [issue optmap]
-  (if-let [[label & args] (:default issue)]
-    (let [target (get optmap label)]
-      (cond (nil? target)
-            (error "RAISE_UNHANDLED: the label " label
-                   " has not been implemented")
-
-            (= target (:id issue))
-            (try
-              (apply (-> issue :options label) args)
-              (catch clojure.lang.ArityException e
-                (error "RAISE_UNHANDLED: Wrong number of arguments to option key " label)))
-
-            :else
-            (throw (create-default-signal issue target label args))))
-    (default-unhandled-fn issue)))
-
 (declare raise-loop)
 
-(defn- raise-escalate [issue handler managers optmap]
-  (let [contents  (:contents issue)
-        ncontents (parse-contents
-                   ((:contents-fn handler) contents))
-        noptions  ((:options-fn handler) contents)
+(defn- raise-catch [manager value]
+  (throw (create-catch-signal (:id manager) value)))
+
+(defn- raise-choose [issue label args optmap]
+  (let [target (get optmap label)]
+    (cond (nil? target)
+          (error "RAISE_CHOOSE: the label " label
+                 " has not been implemented")
+
+          (= target (:id issue))
+          (try
+            (apply (-> issue :options label) args)
+            (catch clojure.lang.ArityException e
+              (error "RAISE_CHOOSE: Wrong number of arguments to option key " label)))
+
+          :else
+          (throw (create-choose-signal target label args)))))
+
+(defn- raise-unhandled [issue optmap]
+  (if-let [[label & args] (:default issue)]
+    (raise-choose issue label args optmap)
+    (default-unhandled-fn issue)))
+
+(defn- raise-fail [issue contents]
+  (throw (create-exception issue (parse-contents contents))))
+
+(defn- raise-escalate [issue res managers optmap]
+  (let [ncontents (parse-contents (::contents res))
+        noptions  (::options res)
         noptmap   (zipmap (keys noptions) (repeat (:id issue)))
-        ndefault  ((:default-fn handler) contents)
+        ndefault  (::default res)
         nissue (-> issue
                    (update-in [:contents] merge ncontents)
                    (update-in [:options] merge noptions)
                    (assoc-if :default ndefault))]
     (raise-loop nissue (next managers) (merge noptmap optmap))))
 
-(defn- raise-continue [issue handler]
-  ((:fn handler) (:contents issue)))
-
-(defn- raise-fail [issue handler]
-  (let [contents  (:contents issue)
-        ncontents (parse-contents
-                   ((:contents-fn handler) contents))
-        ex (create-exception issue ncontents)]
-    (throw ex)))
-
-(defn- raise-catch [issue handler manager]
-  (let [sig (create-catch-signal issue (:id manager) (:fn handler))]
-    (throw sig)))
-
-(defn- raise-choose [issue handler manager optmap]
-  (let [label (:label handler)
-        contents (:contents issue)]
-    (if-let [target (get optmap label)]
-      (if (= target (:id issue))
-        (apply (-> issue :options label) ((:args-fn handler) contents))
-        (let [sig (create-choose-signal issue target
-                                        label (:args-fn handler))]
-          (throw sig)))
-      (error "RAISE_CHOOSE: Cannot find " label " in options."))))
-
 (defn raise-loop [issue managers optmap]
   (if-let [mgr (first managers)]
     (if-let [h (raise-valid-handler issue (:handlers mgr))]
-      (let [ctns (:contents issue)]
-        (condp = (:type h)
-          :continue (raise-continue issue h)
-          :escalate (raise-escalate issue h managers optmap)
-          :catch (raise-catch issue h mgr)
-          :choose (raise-choose issue h mgr optmap)
-          :fail (raise-fail issue h)
-          :default (raise-unhandled issue optmap)))
+      (let [ctns (:contents issue)
+            res  ((:fn h) ctns)]
+        (condp = (::type res)
+          :continue (::value res)
+          :choose (raise-choose issue (::label res) (::args res) optmap)
+          :default (raise-unhandled issue optmap)
+          :fail (raise-fail issue (::contents res))
+          :escalate (raise-escalate issue res managers optmap)
+          (raise-catch mgr res)))
       (recur issue (next managers) optmap))
     (raise-unhandled issue optmap)))
+
 
 (def #^{:doc "Special form to be used inside a 'manage' block.  When
   any issue is 'raised' from within the manage block, if that error satisfies
@@ -173,39 +153,27 @@
                     [checker params & body])}
   on)
 
-(def #^{:doc "Special form to be used inside an 'on' block."
-        :arglists '[& body]}
-  continue)
+(defmacro continue [& body]
+  `{::type :continue ::value (do ~@body)})
 
-(def #^{:doc "Special form to be used inside an 'on' block."
-        :arglists '[contents & escalate-forms]}
-  escalate)
+(defmacro default [& args]
+  `{::type :default ::args (list ~@args)})
 
-(def #^{:doc "Special form to be used inside an 'on' block. Jumps to an option with
-  the given label and the arguments to that option. It will choose the most top-level
-  option if there are two with the same label."
-        :arglists '[label & option-args]}
-  choose)
+(defmacro choose [label & args]
+  `{::type :choose ::label ~label ::args (list ~@args)})
+
+(defmacro fail
+  ([] {::type :fail})
+  ([contents]
+     `{::type :fail ::contents ~contents}))
 
 (def #^{:doc "Special form to be used inside 'manage' 'raise' or 'escalate' blocks. It
   provides a label and a function body to be set up within a managed scope"
         :arglists '[label args & body]}
   option)
 
-(def #^{:doc "It can be used within 'raise' and 'escalate' forms to override the
-   default option of a raised issue. Or it can be used in 'on' forms to indicate
-   that the default option of an issue is to be used."
-        :arglists '("within on form:" [& args]
-                    "within raise and escalate forms:" [label & args ])}
-  default)
-
-(def #^{:doc "Special form to be used inside 'on' blocks. It short-circuits higher level managers to throw a failure signal"
-        :arglists '([] [contents])}
-  fail)
-
 (def sp-forms {:raise #{#'option #'default}
-               :manage #{#'on #'option}
-               :on #{#'continue #'escalate #'choose #'fail #'default}})
+               :manage #{#'on #'option}})
 
 (defn- is-special-form [k form]
   (and (list? form)
@@ -226,6 +194,16 @@
                         (last)
                         (next))]
     (vec default)))
+
+(defmacro escalate [contents & forms]
+  (let [[contents forms]
+        (if (is-special-form :raise contents)
+          [nil (cons contents forms)]
+          [contents forms])]
+    `{::type :escalate
+      ::contents ~contents
+      ::options ~(parse-option-forms forms)
+      ::default ~(parse-default-form forms)}))
 
 (defmacro raise
   "Raise an issue with the content to be either a keyword, hashmap or vector, optional message
@@ -252,18 +230,13 @@
           (throw ex)
 
           (= :choose (::signal data))
-          (let [f (get (:options manager) (::label data))
-                args ((::args-fn data) (::contents data))]
-            (manage-apply f args (::label data)))
+          (let [label (::label data)
+                f (get (:options manager) label)
+                args (::args data)]
+            (manage-apply f args label))
 
           (= :catch (::signal data))
-          (let [f (::fn data)]
-            (f (::contents data)))
-
-          (= :default (::signal data))
-          (let [f (get (:options manager) (::label data))
-                args (:args data)]
-            (manage-apply f args (::label data)))
+          (::value data)
 
           :else (throw ex))))
 
@@ -275,58 +248,14 @@
       (catch clojure.lang.ExceptionInfo ~'ex
         (manage-signal ~manager ~'ex)))))
 
-(defn- parse-on-type [fbody]
-  (if (list? fbody)
-      (condp = (resolve (first fbody))
-        #'continue :continue
-        #'escalate :escalate
-        #'choose   :choose
-        #'default  :default
-        #'fail     :fail
-        :catch)
-      :catch))
-
-(defn- parse-on-continue [params [_ & body]]
-  {:fn `(fn [{:keys ~params}] ~@body)})
-
-(defn- parse-on-choose [params [_ label & args]]
-  {:label label
-   :args-fn `(fn [{:keys ~params}]
-               (vector ~@args))})
-
-(defn- parse-on-escalate [params [_ contents & forms]]
-  (let [[contents forms]
-        (if #(is-special-form :escalate contents)
-          [nil (cons contents forms)]
-          [contents forms])])
-  {:contents-fn `(fn [{:keys ~params}]
-                   (or ~contents {}))
-   :options-fn `(fn [{:keys ~params}]
-                  ~(parse-option-forms forms))
-   :default-fn `(fn [{:keys ~params}]
-                  ~(parse-default-form forms))})
-
-(defn- parse-on-fail [params [_ & [contents]]]
-  {:contents-fn `(fn [{:keys ~params}]
-                   (or ~contents {}))})
-
-(defn- parse-on [chk params fbody rbody]
-  (let [t (parse-on-type fbody)
-        h {:type t :checker chk}]
-    (if (not= t :catch)
-      (assert (nil? rbody)))
-    (case t
-      :catch (assoc h :fn `(fn [{:keys ~params}] ~fbody ~@rbody))
-      :escalate (merge h (parse-on-escalate params fbody))
-      :choose  (merge h (parse-on-choose params fbody))
-      :continue (merge h (parse-on-continue params fbody))
-      :fail (merge h (parse-on-fail params fbody))
-      :default h)))
+(defn- parse-on [chk params body]
+  {:checker chk
+   :fn `(fn [{:keys ~params}] ~@body)})
 
 (defn- parse-handler-forms [forms]
-  (vec (for [[type chk params & [fbody & rbody]] forms
+  (vec (for [[type chk params & body] forms
              :when (= (resolve type) #'on)]
-         (parse-on chk params fbody rbody))))
+         (parse-on chk params body))))
 
 (defmacro manage
   "This creats the 'manage' dynamic scope form. The body will be executed
@@ -349,7 +278,9 @@
        exceptions))
 
 (defmacro raise-on
-  [exceptions content form & forms]
+  "Raises an issue with options and defaults when an exception is encountered
+  when the body has been evaluated"
+  [[exceptions content] form & forms]
   (let [exceptions
         (cond (symbol? exceptions) [exceptions]
               (vector? exceptions) exceptions
@@ -363,7 +294,27 @@
     `(try ~@body-forms ~@catch-forms)))
 
 (defmacro raise-on-all [content form & forms]
+  "Raises an issue with options and defaults when any exception is encountered
+  as the body is being evaluated"
   `(raise-on Throwable ~content ~form ~@forms))
 
+(defn- parse-anticipate-pair [[extype res]]
+  (cond (hash-set? extype)
+        (mapcat #(parse-anticipate-pair [% res]) extype)
+
+        (symbol? extype)
+        `((catch ~extype t# ~res))
+
+        (or (keyword? extype) (hash-map? extype) (vector? extype))
+        `((catch clojure.lang.ExceptionInfo t#
+            (if (check-contents (ex-data t#)
+                                ~extype)
+              ~res
+              (throw t#))))))
+
 (defmacro anticipate [exvec & body]
-  )
+  "Anticipates exceptions and decides what to do with them"
+  (let [pairs (partition 2 exvec)
+        catches (mapcat parse-anticipate-pair pairs)]
+    `(try ~@body
+          ~@catches)))
