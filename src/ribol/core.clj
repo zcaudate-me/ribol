@@ -296,7 +296,7 @@
 (defmacro raise-on-all [content form & forms]
   "Raises an issue with options and defaults when any exception is encountered
   as the body is being evaluated"
-  `(raise-on Throwable ~content ~form ~@forms))
+  `(raise-on [Throwable ~content] ~form ~@forms))
 
 (defn- parse-anticipate-pair [[extype res]]
   (cond (hash-set? extype)

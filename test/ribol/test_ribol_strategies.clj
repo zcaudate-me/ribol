@@ -348,3 +348,55 @@ ways to build programs."
              (default)))]
    (on :A [] (continue 3)))
   => [1 2 :X])
+
+
+(fact "Combining Strategies"
+
+  "Ribol strategies can also be combined within the handler"
+  (manage (manage
+           (mapv (fn [n]
+                   (raise [:error {:data n}]))
+                 [1 2 3 4 5 6 7 8])
+           (on :error [data]
+               (if (> data 5)
+                 (escalate :too-big)
+                 (continue data))))
+          (on :too-big [data]
+              (continue (- data))))
+  [1 2 3 4 5 -6 -7 -8])
+
+(fact "raise-on"
+  (manage
+   (raise-on [ArithmeticException :divide-by-zero]
+             (/ 4 2)))
+  => 2
+
+  (manage
+   (raise-on [ArithmeticException :divide-by-zero]
+             (/ 1 0)))
+  => (throws (has-data {:divide-by-zero true}))
+
+  (manage
+   (raise-on [ArithmeticException :divide-by-zero]
+             (/ 1 0))
+   (on :divide-by-zero []
+       (continue :infinity)))
+  => :infinity)
+
+(fact "raise-on-all"
+  (manage
+   (raise-on-all :error (/ 4 2))
+   (on :error []
+       (continue :none)))
+  => 2
+
+  (manage
+   (raise-on-all :error (/ nil nil))
+   (on :error []
+       (continue :none)))
+  => :none)
+
+(fact "anticipate"
+  (anticipate [ArithmeticException :infinity]
+              (/ 1 0))
+  => :infinity)
