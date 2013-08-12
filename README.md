@@ -29,6 +29,30 @@ In project.clj, add to dependencies:
 
 Using these six different different issue resolution commands, a programmer has the richness of language beyond the simple 'try/catch' statement at his/her command to be able to craft very complex process control flow strategies without mixing logic handling code in the middle tier. It can also create new ways of thinking about the problem beyond the standard throw/catch mechanism and offer more elegant ways to build programs.
 
+### Comparisons to Other Libraries
+
+There are three other conditional restart libraries for clojure - [errorkit](https://github.com/richhickey/clojure-contrib/blob/master/src/main/clojure/clojure/contrib/error_kit.clj), [swell](https://github.com/hugoduncan/swell) and [conditions](https://github.com/bwo/conditions)
+
+  - `errorkit` provided the guiding architecture for `ribol`. However, ribol updates `errorkit` with more options for controlling exceptions, uses `ex-info` which is part of core and has an updated and more understandable syntax.
+
+  - `swell` and `conditions` are written to work with [slingshot](https://github.com/scgilardi/slingshot) and `try+/catch+`. I'm not  familiar with the advantages/disadvantages of using `slingshot` over the native `ex-info` data carrying implementation.
+
+  - `ribol` offers three more ways of handling error: `escalate`, `fail` and `default`. As of version 0.2 of ribol, handlers are now much more flexible. As far as I can tell, it is the only library that allows this type of resolution switching (having an 'if' form in the 'on' handler to switch between `escalate` and `continue` depending on the value of `data`:
+
+```clojure
+(manage (manage
+           (mapv (fn [n]
+                   (raise [:error {:data n}]))
+                 [1 2 3 4 5 6 7 8])
+           (on :error [data]
+               (if (> data 5)
+                 (escalate :too-big)
+                 (continue data))))
+          (on :too-big [data]
+              (continue (- data))))
+  [1 2 3 4 5 -6 -7 -8])
+```
+
 ### Rational:
 In the author's experience, there are two forms of 'exceptions' that a programmer will encounter:
 
@@ -45,29 +69,6 @@ The common method of `try` and `catch` is not really needed when dealing with th
 
 The net effect of using only the `try/catch` paradigm in application code is that in order to mitigate these Type 2 exceptions, there requires a lot of defensive programming. This turns the middle level of the application into spagetti code with program control flow (`try/catch`) mixed in with program logic . Conditional restarts provide a way for the top-level application to specify strategies to deal with Type 2 exceptions much more cleanly.
 
-### Comparisons to Other Libraries
-
-There are three other conditional restart libraries for clojure - [errorkit](https://github.com/richhickey/clojure-contrib/blob/master/src/main/clojure/clojure/contrib/error_kit.clj), [swell](https://github.com/hugoduncan/swell) and [conditions](https://github.com/bwo/conditions)
-
-  - `errorkit` provided the guiding architecture for `ribol`. However, ribol updates `errorkit` with more options for controlling exceptions, uses `ex-info` which is part of core and has an updated and more understandable syntax.
-
-  - `swell` and `conditions` are written to work with [slingshot](https://github.com/scgilardi/slingshot) and `try+/catch+`. I'm not  familiar with the advantages/disadvantages of using `slingshot` over the native `ex-info` data carrying implementation.
-
-  - `ribol` offers three more ways of handling error: `escalate`, `fail` and `default`. As of version 0.2 of ribol, handlers are now much more flexible. AFAIK, it is the only library that allows this type of switching:
-
-```clojure
-(manage (manage
-           (mapv (fn [n]
-                   (raise [:error {:data n}]))
-                 [1 2 3 4 5 6 7 8])
-           (on :error [data]
-               (if (> data 5)
-                 (escalate :too-big)
-                 (continue data))))
-          (on :too-big [data]
-              (continue (- data))))
-  [1 2 3 4 5 -6 -7 -8])
-```
 
 ## Tutorial
 
