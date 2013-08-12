@@ -10,7 +10,7 @@ In project.clj, add to dependencies:
 
 ### Introduction
 
-`ribol` provides a conditional restart system. For those unfamiliar with what this is, it can be thought of as an issue resolution system or `try++/catch++`. The library provides a communication channel for resolving issues (we use issues here to differentiate from exceptions, although they are pretty the same thing). It models a management structure, in which issues are reported to management, who then what course of action to take depending upon the issue and their own level of expertise:
+`ribol` provides a conditional restart system. It can also be thought of as an issue resolution system or `try++/catch++`. The library provides an alternative channel for resolving 'issues' (we use 'issues' here to differentiate from 'exceptions', although they are pretty much the same thing). It models a management structure, in which issues are reported to management, who then what course of action to take depending upon the issue and their own level of expertise:
 
 - When circumstances arise that need the attention of higher level processes, an 'issue' would be raised that can be managed by any higher level process.
 
@@ -29,15 +29,19 @@ In project.clj, add to dependencies:
 
 Using these six different different issue resolution commands, a programmer has the richness of language beyond the simple 'try/catch' statement at his/her command to be able to craft very complex process control flow strategies without mixing logic handling code in the middle tier. It can also create new ways of thinking about the problem beyond the standard throw/catch mechanism and offer more elegant ways to build programs.
 
-### Comparisons to Other Libraries
+Apart from the tutorial, interested users can peruse the [strategies](https://github.com/zcaudate/ribol/blob/master/test/ribol/test_ribol_strategies.clj) document (still a work in progress) to go through common restart strategies.
+
+### Other Libraries
 
 There are three other conditional restart libraries for clojure - [errorkit](https://github.com/richhickey/clojure-contrib/blob/master/src/main/clojure/clojure/contrib/error_kit.clj), [swell](https://github.com/hugoduncan/swell) and [conditions](https://github.com/bwo/conditions)
 
   - `errorkit` provided the guiding architecture for `ribol`. However, ribol updates `errorkit` with more options for controlling exceptions, uses `ex-info` which is part of core and has an updated and more understandable syntax.
 
-  - `swell` and `conditions` are written to work with [slingshot](https://github.com/scgilardi/slingshot) and `try+/catch+`. I'm not  familiar with the advantages/disadvantages of using `slingshot` over the native `ex-info` data carrying implementation.
+  - `swell` and `conditions` are written to work with [slingshot](https://github.com/scgilardi/slingshot) and `try+/catch+`.
 
-  - `ribol` offers three more ways of handling error: `escalate`, `fail` and `default`. As of version 0.2 of ribol, handlers are now much more flexible. As far as I can tell, it is the only library that allows this type of resolution switching (having an 'if' form in the 'on' handler to switch between `escalate` and `continue` depending on the value of `data`:
+### Novel Features
+
+  - In addition to the other conditional restart Libraries, `ribol` offers three more ways of handling error: `escalate`, `fail` and `default`. As of version `0.2` of ribol, handlers are now much more flexible. As far as I can tell, it is the only library that allows this type of resolution switching (having an 'if' form in the 'on' handler to switch between `escalate` and `continue` depending on the value of `data`:
 
 ```clojure
 (manage (manage
@@ -52,6 +56,8 @@ There are three other conditional restart libraries for clojure - [errorkit](htt
               (continue (- data))))
   [1 2 3 4 5 -6 -7 -8])
 ```
+
+ - Additionally, the follow macros `raise-on`, `raise-on-all` and `anticipate` offer ways to hook into the java exceptions. Its use can be seen here: [integer division](https://github.com/zcaudate/ribol/wiki/Robust-Integer-Divide)
 
 ### Rational:
 In the author's experience, there are two forms of 'exceptions' that a programmer will encounter:
@@ -113,18 +119,16 @@ The 'contents' of the issue can be a hash-map, a keyword or a vector of keywords
 
 ```clojure
 (raise :error)
-=> (throws (has-signal :unmanaged)
-           (has-content {:error true}))
+=> (throws (has-data{:error true}))
 ```
 
 A vector can be create a map with more powerful descriptions about the issue:
 
 ```clojure
 (raise [:flag1 :flag2 {:data 10}])
-=> (throws (has-signal :unmanaged)
-           (has-content {:flag1 true
-                         :flag2 true
-                         :data 10}))
+=> (throws (has-data {:flag1 true
+                      :flag2 true
+                      :data 10}))
 ```
 
 #### 1.1 - raise (option and default)
@@ -155,8 +159,7 @@ If there is no default selection, then an exception will be thrown as per previo
 (raise :error
   (option :use-nil [] nil)
   (option :use-custom [n] n))
- => (throws (has-signal :unmanaged)
-            (has-content {:error true}))
+ => (throws (has-data {:error true}))
 ```
 
 #### 2 - manage
@@ -174,9 +177,9 @@ The output of `half-int-a` can be seen below:
 
 ```clojure
 (half-int-a 2) => 1
-(half-int-a 3)  => (throws (has-signal :unmanaged)
-             (has-content {:odd-number true
-                           :value 3}))
+(half-int-a 3)
+=> (throws (has-data {:odd-number true
+                      :value 3}))
 ```
 
 This is the output of `half-int-a` used within a higher-order function:
@@ -184,9 +187,8 @@ This is the output of `half-int-a` used within a higher-order function:
 ```clojure
 (mapv half-int-a [2 4 6]) => [1 2 3]
 (mapv half-int-a [2 3 6])
-=> (throws (has-signal :unmanaged)
-           (has-content {:odd-number true
-                         :value 3})))
+=> (throws (has-data {:odd-number true
+                      :value 3})))
 ```
 
 #### 2.1 - on (catch handler)
