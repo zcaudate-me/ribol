@@ -82,7 +82,7 @@ Because we are dealing with exceptions, the best way to do this is to use a test
 
 #### 0 - setup
 
-We setup midje and define two checkers, `has-signal` and `has-content` which strips out keys within the thrown `ExceptionInfo` exception
+We setup midje and define the checker `has-data` which strips out keys within the thrown `ExceptionInfo` exception
 
 ```clojure
 (ns example.ribol
@@ -91,7 +91,7 @@ We setup midje and define two checkers, `has-signal` and `has-content` which str
 
 (defn has-data [data]
   (fn [ex]
-    (-> e ex-data (= content))))
+    (-> ex ex-data (= data))))
 ```
 
 ### IMPORTANT: For brevity reasons, we will be omitting the fact form
