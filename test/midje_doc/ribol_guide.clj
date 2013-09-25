@@ -25,7 +25,7 @@ This is quite a comprehensive guide to `ribol` and how conditional restart libra
 
 A walkthough and guide for `ribol` and its special forms can be found in [Chapter {{syntax-walkthrough}}](#syntax-walkthrough).
 
-For those that wish to know more about conditional restarts, a comparison of different strategies that can be implemented is done in [Chapter {{control-strategies}}](#control-strategies). 
+For those that wish to know more about conditional restarts, a comparison of different strategies that can be implemented is done in [Chapter {{control-strategies}}](#control-strategies).
 
 "
 
@@ -124,11 +124,25 @@ Using these six different different issue resolution directives, the programmer 
       (ex-data e)))
   => {:error true})
 
-"The payload can be expressed as a `hash-map`, a `keyword` or a `vector`. We define the `raises-issue` ([e.{{payload-macro}}](#payload-macro)) macro to help explore this a little further"
+"The payload can be expressed as a `hash-map`, a `keyword` or a `vector`. We define the `raises-issue` ([e.{{raises-issue}}](#raises-issue)) macro to help explore this a little further"
+
+[[{:title "`raises-issue` helper definition" :tag "raises-issue"}]]
+(defmacro raises-issue [payload]
+  `(throws (fn [e#] (= (ex-data e#) ~payload))))
+
+"Please note that the `raises-issue` macro is only working with `midje`. in order to work with the `payload` macro:"
 
 [[{:title "`payload` helper definition" :tag "payload-macro"}]]
-(defmacro raises-issue [payload]
- `(throws (fn [e#] (= (ex-data e#) ~payload))))
+(fact
+  (defmacro payload [& body]
+    `(try ~@body
+          (throw (Throwable.))
+          (catch clojure.lang.ExceptionInfo e#
+            (ex-data e#))
+          (catch Throwable t#
+            (throw (Exception. "No Issue raised")))))
+
+  (payload (raise :error)) => {:error true})
 
 
 [[:subsection {:title "hash-map payloads"}]]
@@ -197,7 +211,7 @@ A function `half-int` is defined ([e.{{half-int-definition}}](#half-int-definiti
     (if (= 0 (mod n 2))
       (quot n 2)
       (raise [:odd-number {:value n}])))
-  
+
   "The output of `half-int` can be seen below for even ([e.{{half-int-even}}](#half-int-even)) and odd ([e.{{half-int-odd}}](#half-int-odd))numbers"
 
   [[{:title "half-int even"}]]
@@ -250,8 +264,8 @@ A function `half-int` is defined ([e.{{half-int-definition}}](#half-int-definiti
 [[:section {:title "on - continue"}]]
 
 (facts
-  "The `continue` special form is used to continue the operation from the point that the `issue` was raised ([e.{{continue-using-nan}}](#continue-using-nan)). It must be pointed out that this is impossible to do using the `try/catch` paradigm because the all the information from the stack will be lost. 
-  
+  "The `continue` special form is used to continue the operation from the point that the `issue` was raised ([e.{{continue-using-nan}}](#continue-using-nan)). It must be pointed out that this is impossible to do using the `try/catch` paradigm because the all the information from the stack will be lost.
+
   The `on` handler can take keys of the `payload` of the raised `issue` as parameters. In [e.{{continue-using-str}}](#continue-using-str), a vector containing strings of the odd numbers are formed. Whereas in [e.{{continue-using-fractions}}](#continue-using-fractions), the on handler puts in fractions instead."
 
   [[{:title "continue using nan"}]]
@@ -275,7 +289,7 @@ A function `half-int` is defined ([e.{{half-int-definition}}](#half-int-definiti
        (continue (/ value 2))))
   => [1/2 1 3/2 2]
   )
-  
+
 
 [[:section {:title "on - fail"}]]
 
@@ -294,16 +308,17 @@ A function `half-int` is defined ([e.{{half-int-definition}}](#half-int-definiti
 
 "The `choose` special form is used to jump to a `option`. A new function `half-int-b` ([e.{{half-int-b-definition}}](#half-int-b-definition)) is defined giving options to jump to within the `raise` form. Its usage can be seen in [e.{{choose-ex-1}}](#choose-ex-1) where different paths can be chosen depending upon `:value`. An option can also be specified in the manage block ([e.{{choose-ex-2}}](#choose-ex-2)). Options can also be overridden when specified in higher manage blocks ([e.{{choose-ex-3}}](#choose-ex-3)). "
 
-[[{:title "half-int-b definition" }]]
-(defn half-int-b [n]
-  (if (= 0 (mod n 2))
-    (quot n 2)
-    (raise [:odd-number {:value n}]
-      (option :use-nil [] nil)
-      (option :use-nan [] :nan)
-      (option :use-custom [n] n))))
 
 (facts
+  [[{:title "half-int-b definition"}]]
+  (defn half-int-b [n]
+    (if (= 0 (mod n 2))
+      (quot n 2)
+      (raise [:odd-number {:value n}]
+             (option :use-nil [] nil)
+             (option :use-nan [] :nan)
+             (option :use-custom [n] n))))
+
   [[{:title "choosing different paths based on value" :tag "choose-ex-1"}]]
   (manage
    (mapv half-int-b [1 2 3 4])
@@ -321,16 +336,14 @@ A function `half-int` is defined ([e.{{half-int-definition}}](#half-int-definiti
        (choose :use-empty))
    (option :use-empty [] []))
   => []
-  
+
   [[{:title "overwriting :use-nil within manage form" :tag "choose-ex-3"}]]
   (manage
    (mapv half-int-b [1 2 3 4])
    (on :odd-number []
        (choose :use-nil))
    (option :use-nil [] nil))
-  => nil
-  )
-
+  => nil)
 
 [[:section {:title "on - default"}]]
 
@@ -402,7 +415,7 @@ A function `half-int` is defined ([e.{{half-int-definition}}](#half-int-definiti
 
 "Program decision points can be changed by higher level managers through `escalate`"
 
-(fact   
+(fact
   (defn half-int-f [n]
    (manage
      (if (= 0 (mod n 2))
@@ -426,7 +439,7 @@ A function `half-int` is defined ([e.{{half-int-definition}}](#half-int-definiti
     (mapv half-int-f [1 2 3 4])
     (on :odd-number []
       (choose :use-zero)))
-    
+
   => [0 1 0 2]   ;; using an escalated option
 )
 
@@ -437,7 +450,7 @@ A function `half-int` is defined ([e.{{half-int-definition}}](#half-int-definiti
     (mapv half-int-f [1 2 3 4])
     (on :odd-number []
       (choose :use-nil)))
-      
+
     => [nil 1 nil 2]
 
     (manage
@@ -445,9 +458,49 @@ A function `half-int` is defined ([e.{{half-int-definition}}](#half-int-definiti
      (on :odd-number []
        (choose :use-nil))
      (option :use-nil [] nil))
-     
-   => nil  ;; notice that the :use-nil is overridden 
+
+   => nil  ;; notice that the :use-nil is overridden
 )
+
+[[:section {:title "raise-on"}]]
+(facts
+  (manage
+   (raise-on [ArithmeticException :divide-by-zero]
+             (/ 4 2)))
+  => 2
+
+  (manage
+   (raise-on [ArithmeticException :divide-by-zero]
+             (/ 1 0)))
+  => (raises-issue {:divide-by-zero true})
+
+  (manage
+   (raise-on [ArithmeticException :divide-by-zero]
+             (/ 1 0))
+   (on :divide-by-zero []
+       (continue :infinity)))
+  => :infinity)
+
+[[:section {:title "raise-on-all"}]]
+(facts
+  (manage
+   (raise-on-all :error (/ 4 2))
+   (on :error []
+       (continue :none)))
+  => 2
+
+  (manage
+   (raise-on-all :error (/ nil nil))
+   (on :error []
+       (continue :none)))
+  => :none)
+
+[[:section {:title "anticipate"}]]
+(facts
+  (anticipate [ArithmeticException :infinity]
+              (/ 1 0))
+  => :infinity)
+
 
 [[:file {:src "test/midje_doc/strategies.clj"}]]
 
