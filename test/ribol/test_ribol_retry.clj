@@ -1,4 +1,4 @@
-(ns ribol.test-ribol
+(ns ribol.test-ribol-retry
   (:require [ribol.core :refer :all]
             [midje.sweet :refer :all]))
 
@@ -6,20 +6,20 @@
 "
 
 (defn int-div [n m]
-  (prn n 'divide-by m)
+  ;;(prn n 'divide-by m)
   (anticipate
    [ArithmeticException
-    (do (println  "- div-error - \n")
+    (do ;;(println  "- div-error - \n")
         (raise [:div-error {:numer n :denom m}]))
     #{ClassCastException NullPointerException}
-    (do (println  "- input-error - \n")
+    (do ;;(println  "- input-error - \n")
         (raise [:input-error {:numer n :denom m}]))]
    (let [q   (quot n m)
          diff (- n (* q m))]
      (if (zero? diff)
-       (do (println  "- CORRECT! - \n")
+       (do ;;(println  "- CORRECT! - \n")
            q)
-       (do (println  "- not-exact - \n")
+       (do ;;(println  "- not-exact - \n")
            (raise [:not-exact {:numer n :denom m :diff diff}]))))))
 
 (defn int-div-pairs [arr]
@@ -44,7 +44,7 @@
              (continue (int-div 0 denom))))
    (on :div-error [numer denom]
        (cond (= 0 denom)
-             (do (println "- USING INFINITY -\n")
+             (do ;;(println "- USING INFINITY -\n")
                (continue :infinity))
              :else :failed))
    (on :not-exact [numer denom diff]

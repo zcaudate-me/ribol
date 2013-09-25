@@ -30,7 +30,6 @@
                         :flag2 true
                         :data 10})))
 
-
 (defn half-int-a [n]
   (if (= 0 (mod n 2))
     (quot n 2)
