@@ -1,0 +1,793 @@
+<html><head><meta content="chrome=1" http-equiv="X-UA-Compatible" /><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1, user-scalable=no" name="viewport" /><title>ribol</title><style>body {
+  padding:50px;
+  font:14px/1.5 Helvetica, Arial, sans-serif;
+  color:#777;
+  font-weight:300;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color:#222;
+  margin:0 0 20px;
+}
+
+p, ul, ol, table, pre, dl {
+  margin:0 0 20px;
+}
+
+h1, h2, h3 {
+  line-height:1.1;
+}
+
+h1 {
+  font-size:28px;
+}
+
+h2 {
+  color:#393939;
+}
+
+h4, h5, h6 {
+  color:#494949;
+  margin:0;
+}
+
+header h4{
+  margin: 10 0 0 0px;
+}
+
+a {
+  color:#39c;
+  font-weight:400;
+  text-decoration:none;
+}
+
+a small {
+  font-size:11px;
+  color:#777;
+  margin-top:-0.6em;
+  display:block;
+}
+
+.wrapper {
+  width:860px;
+  margin:0 auto;
+}
+
+.figure div.img {
+  text-align: center;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  padding: 10px;
+}
+
+blockquote {
+  border-left:1px solid #e5e5e5;
+  margin:0;
+  padding:0 0 0 20px;
+  font-style:italic;
+}
+
+code, pre {
+  font-family:Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
+  color:#333;
+  font-size:12px;
+}
+
+pre {
+  padding:8px 15px;
+  background: #f8f8f8;  
+  border-radius:5px;
+  border:1px solid #e5e5e5;
+  overflow-x: auto;
+}
+
+table {
+  width:100%;
+  border-collapse:collapse;
+}
+
+th, td {
+  text-align:left;
+  padding:5px 10px;
+  border-bottom:1px solid #e5e5e5;
+}
+
+dt {
+  color:#444;
+  font-weight:700;
+}
+
+th {
+  color:#444;
+}
+
+img {
+  max-width:100%;
+}
+
+header {
+  width:270px;
+  float:left;
+  /*position:fixed;*/
+}
+
+header ul {
+  list-style:none;
+  height:40px;
+  
+  padding:0;
+  
+  background: #eee;
+  background: -moz-linear-gradient(top, #f8f8f8 0%, #dddddd 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f8f8f8), color-stop(100%,#dddddd));
+  background: -webkit-linear-gradient(top, #f8f8f8 0%,#dddddd 100%);
+  background: -o-linear-gradient(top, #f8f8f8 0%,#dddddd 100%);
+  background: -ms-linear-gradient(top, #f8f8f8 0%,#dddddd 100%);
+  background: linear-gradient(top, #f8f8f8 0%,#dddddd 100%);
+  
+  border-radius:5px;
+  border:1px solid #d2d2d2;
+  box-shadow:inset #fff 0 1px 0, inset rgba(0,0,0,0.03) 0 -1px 0;
+  width:270px;
+}
+
+header li {
+  width:89px;
+  float:left;
+  border-right:1px solid #d2d2d2;
+  height:40px;
+}
+
+header ul a {
+  line-height:1;
+  font-size:11px;
+  color:#999;
+  display:block;
+  text-align:center;
+  padding-top:6px;
+  height:40px;
+}
+
+strong {
+  font-weight:700;
+}
+
+header ul li + li {
+  width:88px;
+  border-left:1px solid #fff;
+}
+
+header ul li + li + li {
+  border-right:none;
+  width:89px;
+}
+
+header ul a strong {
+  font-size:14px;
+  display:block;
+  color:#222;
+}
+
+section {
+  width: 60%;
+  float:right;
+  padding-bottom:50px;
+  padding-right: 10%;
+}
+
+small {
+  font-size:11px;
+}
+
+hr {
+  border:0;
+  background:#e5e5e5;
+  height:1px;
+  margin:0 0 20px;
+}
+
+footer {
+  width:270px;
+  float:left;
+  position:fixed;
+  bottom:50px;
+}
+
+header div.heading {
+  display:none;
+}
+
+
+@media print, screen and (max-width: 960px) {
+  
+  div.wrapper {
+    width:auto;
+    margin:0;
+  }
+  
+  header, section, footer {
+    float:none;
+    position:static;
+    width:auto;
+  }
+  
+  header div.heading {
+    display:block;
+  }
+    
+  section div.heading {
+    display:none;
+  }
+  
+  section {
+    border:1px solid #e5e5e5;
+    border-width:1px 0;
+    padding:20px 0;
+    margin:0 0 20px;
+  }
+  
+  header a small {
+    display:inline;
+  }
+  
+  header ul {
+    position:absolute;
+    right:50px;
+    top:52px;
+  }
+}
+
+@media print, screen and (max-width: 720px) {
+  body {
+    word-wrap:break-word;
+  }
+  
+  header {
+    padding:0;
+  }
+  
+  header ul, header p.view {
+    position:static;
+  }
+  
+  pre, code {
+    word-wrap:normal;
+  }
+}
+
+@media print, screen and (max-width: 480px) {
+  body {
+    padding:15px;
+  }
+  
+  header ul {
+    display:none;
+  }
+}
+
+@media print {
+  body {
+    padding:0.4in;
+    font-size:12pt;
+    color:#444;
+  }
+}
+
+
+.highlight  { background: #ffffff; }
+.highlight .c { color: #999988; font-style: italic } /* Comment */
+.highlight .err { color: #a61717; background-color: #e3d2d2 } /* Error */
+.highlight .k { font-weight: bold } /* Keyword */
+.highlight .o { font-weight: bold } /* Operator */
+.highlight .cm { color: #999988; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #999999; font-weight: bold } /* Comment.Preproc */
+.highlight .c1 { color: #999988; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #999999; font-weight: bold; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #000000; background-color: #ffdddd } /* Generic.Deleted */
+.highlight .gd .x { color: #000000; background-color: #ffaaaa } /* Generic.Deleted.Specific */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .gr { color: #aa0000 } /* Generic.Error */
+.highlight .gh { color: #999999 } /* Generic.Heading */
+.highlight .gi { color: #000000; background-color: #ddffdd } /* Generic.Inserted */
+.highlight .gi .x { color: #000000; background-color: #aaffaa } /* Generic.Inserted.Specific */
+.highlight .go { color: #888888 } /* Generic.Output */
+.highlight .gp { color: #555555 } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold; } /* Generic.Subheading */
+.highlight .gt { color: #aa0000 } /* Generic.Traceback */
+.highlight .kc { font-weight: bold } /* Keyword.Constant */
+.highlight .kd { font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { font-weight: bold } /* Keyword.Pseudo */
+.highlight .kr { font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #445588; font-weight: bold } /* Keyword.Type */
+.highlight .m { color: #009999 } /* Literal.Number */
+.highlight .s { color: #d14 } /* Literal.String */
+.highlight .na { color: #008080 } /* Name.Attribute */
+.highlight .nb { color: #0086B3 } /* Name.Builtin */
+.highlight .nc { color: #445588; font-weight: bold } /* Name.Class */
+.highlight .no { color: #008080 } /* Name.Constant */
+.highlight .ni { color: #800080 } /* Name.Entity */
+.highlight .ne { color: #990000; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #990000; font-weight: bold } /* Name.Function */
+.highlight .nn { color: #555555 } /* Name.Namespace */
+.highlight .nt { color: #000080 } /* Name.Tag */
+.highlight .nv { color: #008080 } /* Name.Variable */
+.highlight .ow { font-weight: bold } /* Operator.Word */
+.highlight .w { color: #bbbbbb } /* Text.Whitespace */
+.highlight .mf { color: #009999 } /* Literal.Number.Float */
+.highlight .mh { color: #009999 } /* Literal.Number.Hex */
+.highlight .mi { color: #009999 } /* Literal.Number.Integer */
+.highlight .mo { color: #009999 } /* Literal.Number.Oct */
+.highlight .sb { color: #d14 } /* Literal.String.Backtick */
+.highlight .sc { color: #d14 } /* Literal.String.Char */
+.highlight .sd { color: #d14 } /* Literal.String.Doc */
+.highlight .s2 { color: #d14 } /* Literal.String.Double */
+.highlight .se { color: #d14 } /* Literal.String.Escape */
+.highlight .sh { color: #d14 } /* Literal.String.Heredoc */
+.highlight .si { color: #d14 } /* Literal.String.Interpol */
+.highlight .sx { color: #d14 } /* Literal.String.Other */
+.highlight .sr { color: #009926 } /* Literal.String.Regex */
+.highlight .s1 { color: #d14 } /* Literal.String.Single */
+.highlight .ss { color: #990073 } /* Literal.String.Symbol */
+.highlight .bp { color: #999999 } /* Name.Builtin.Pseudo */
+.highlight .vc { color: #008080 } /* Name.Variable.Class */
+.highlight .vg { color: #008080 } /* Name.Variable.Global */
+.highlight .vi { color: #008080 } /* Name.Variable.Instance */
+.highlight .il { color: #009999 } /* Literal.Number.Integer.Long */
+
+.type-csharp .highlight .k { color: #0000FF }
+.type-csharp .highlight .kt { color: #0000FF }
+.type-csharp .highlight .nf { color: #000000; font-weight: normal }
+.type-csharp .highlight .nc { color: #2B91AF }
+.type-csharp .highlight .nn { color: #000000 }
+.type-csharp .highlight .s { color: #A31515 }
+.type-csharp .highlight .sc { color: #A31515 }
+
+
+</style></head><body><header><div class="heading"><h1>ribol</h1><h3>conditional restarts for clojure</h3><hr /><div class="info"><h5>Author: Chris Zheng<b>&nbsp;&nbsp;<a href="mailto:z@caudate.me">(z@caudate.me)</a></b></h5><h5>Library: v0.2.1</h5><h5>Date: 25 September 2013</h5><h5>Website: <a href="http://www.github.com/zcaudate/ribol">http://www.github.com/zcaudate/ribol</a></h5><h5>Generated By: <a href="http://www.github.com/zcaudate/lein-midje-doc">MidjeDoc</a></h5></div><br /><hr /></div><h4><a href="#installation">1 &nbsp; Installation</a></h4><h4><a href="#overview">2 &nbsp; Overview</a></h4><h5>&nbsp;&nbsp;<i><a href="#introduction">2.1 &nbsp; Introduction</a></i></h5><h5>&nbsp;&nbsp;<i><a href="#raise-vs-throw">2.2 &nbsp; raise vs throw</a></i></h5><h5>&nbsp;&nbsp;<i><a href="#manage/on-vs-try/catch">2.3 &nbsp; manage/on vs try/catch</a></i></h5><h4><a href="#syntax-walkthrough">3 &nbsp; Syntax Walkthrough</a></h4><h5>&nbsp;&nbsp;<i><a href="#raise">3.1 &nbsp; raise</a></i></h5><h5>&nbsp;&nbsp;&nbsp;&nbsp;<i><a href="#hash-map-payloads">3.1.1 &nbsp; hash-map payloads</a></i></h5><h5>&nbsp;&nbsp;&nbsp;&nbsp;<i><a href="#keyword-payloads">3.1.2 &nbsp; keyword payloads</a></i></h5><h5>&nbsp;&nbsp;&nbsp;&nbsp;<i><a href="#vector-payloads">3.1.3 &nbsp; vector payloads</a></i></h5><h5>&nbsp;&nbsp;<i><a href="#raise---options">3.2 &nbsp; raise - options</a></i></h5><h5>&nbsp;&nbsp;<i><a href="#manage">3.3 &nbsp; manage</a></i></h5><h5>&nbsp;&nbsp;<i><a href="#on">3.4 &nbsp; on</a></i></h5><h5>&nbsp;&nbsp;<i><a href="#on---continue">3.5 &nbsp; on - continue</a></i></h5><h5>&nbsp;&nbsp;<i><a href="#on---fail">3.6 &nbsp; on - fail</a></i></h5><h5>&nbsp;&nbsp;<i><a href="#on---choose">3.7 &nbsp; on - choose</a></i></h5><h5>&nbsp;&nbsp;<i><a href="#on---default">3.8 &nbsp; on - default</a></i></h5><h5>&nbsp;&nbsp;<i><a href="#on---escalate">3.9 &nbsp; on - escalate</a></i></h5><h4><a href="#control-strategies">4 &nbsp; Control Strategies</a></h4><h5>&nbsp;&nbsp;<i><a href="#normal">4.1 &nbsp; Normal</a></i></h5><h5>&nbsp;&nbsp;&nbsp;&nbsp;<i><a href="#no-raise">4.1.1 &nbsp; No Raise</a></i></h5><h5>&nbsp;&nbsp;&nbsp;&nbsp;<i><a href="#issue-raised">4.1.2 &nbsp; Issue Raised</a></i></h5><h5>&nbsp;&nbsp;<i><a href="#catch">4.2 &nbsp; Catch</a></i></h5><h5>&nbsp;&nbsp;&nbsp;&nbsp;<i><a href="#first-level-catch">4.2.1 &nbsp; First Level Catch</a></i></h5><h5>&nbsp;&nbsp;&nbsp;&nbsp;<i><a href="#second-level-catch">4.2.2 &nbsp; Second Level Catch</a></i></h5><h5>&nbsp;&nbsp;<i><a href="#continue">4.3 &nbsp; Continue</a></i></h5><h5>&nbsp;&nbsp;&nbsp;&nbsp;<i><a href="#first-level-continue">4.3.1 &nbsp; First Level Continue</a></i></h5><h5>&nbsp;&nbsp;&nbsp;&nbsp;<i><a href="#second-level-continue">4.3.2 &nbsp; Second Level Continue</a></i></h5><h5>&nbsp;&nbsp;<i><a href="#choose">4.4 &nbsp; Choose</a></i></h5><h5>&nbsp;&nbsp;&nbsp;&nbsp;<i><a href="#choose-lower-level">4.4.1 &nbsp; Choose Lower-Level</a></i></h5><h5>&nbsp;&nbsp;&nbsp;&nbsp;<i><a href="#choose-upper-level">4.4.2 &nbsp; Choose Upper-Level</a></i></h5><h5>&nbsp;&nbsp;<i><a href="#choose-more">4.5 &nbsp; Choose - More Strategies</a></i></h5><h5>&nbsp;&nbsp;&nbsp;&nbsp;<i><a href="#overridding-an-option">4.5.1 &nbsp; Overridding An Option</a></i></h5><h5>&nbsp;&nbsp;&nbsp;&nbsp;<i><a href="#default-option">4.5.2 &nbsp; Default Option</a></i></h5><h5>&nbsp;&nbsp;&nbsp;&nbsp;<i><a href="#overriding-defaults">4.5.3 &nbsp; Overriding Defaults</a></i></h5><h5>&nbsp;&nbsp;<i><a href="#escalate">4.6 &nbsp; Escalate</a></i></h5><h5>&nbsp;&nbsp;&nbsp;&nbsp;<i><a href="#simple-escalation">4.6.1 &nbsp; Simple Escalation</a></i></h5><h5>&nbsp;&nbsp;&nbsp;&nbsp;<i><a href="#escalation-with-options">4.6.2 &nbsp; Escalation with Options</a></i></h5><h5>&nbsp;&nbsp;<i><a href="#fail">4.7 &nbsp; Fail</a></i></h5><h5>&nbsp;&nbsp;<i><a href="#default">4.8 &nbsp; Default</a></i></h5><h5>&nbsp;&nbsp;&nbsp;&nbsp;<i><a href="#escalation-with-defaults">4.8.1 &nbsp; Escalation with Defaults</a></i></h5><h5>&nbsp;&nbsp;<i><a href="#on-form">4.9 &nbsp; Branch Using On</a></i></h5><h4><a href="#end-notes">5 &nbsp; End Notes</a></h4><br /></header><section><div class="heading"><h1>ribol</h1><h3>conditional restarts for clojure</h3><hr /><div class="info"><h5>Author: Chris Zheng<b>&nbsp;&nbsp;<a href="mailto:z@caudate.me">(z@caudate.me)</a></b></h5><h5>Library: v0.2.1</h5><h5>Date: 25 September 2013</h5><h5>Website: <a href="http://www.github.com/zcaudate/ribol">http://www.github.com/zcaudate/ribol</a></h5><h5>Generated By: <a href="http://www.github.com/zcaudate/lein-midje-doc">MidjeDoc</a></h5></div><br /><hr /></div><div><a name="installation"></a><h2><b>1 &nbsp;&nbsp; Installation</b></h2></div><div><p>In <code>project.clj</code>, add to dependencies:</p></div><div><div class="highlight"><pre><span class="p">[</span><span class="nv">im.chit/ribol</span> <span class="s">&quot;0.2.1&quot;</span><span class="p">]</span>
+</pre></div>
+</div><div><p>All functionality is found contained in <code>ribol.core</code></p></div><div><div class="highlight"><pre><span class="p">(</span><span class="nf">use</span> <span class="ss">&#39;ribol.core</span><span class="p">)</span>
+</pre></div>
+</div><div><a name="overview"></a><h2><b>2 &nbsp;&nbsp; Overview</b></h2></div><div><p>This is quite a comprehensive guide to <code>ribol</code> and how conditional restart libraries may be used. There are currently three other conditional restart libraries for clojure:</p><ul><li><a href='https://github.com/richhickey/clojure-contrib/blob/master/src/main/clojure/clojure/contrib/error&#95;kit.clj'><code>errorkit</code></a> was the first and provided the guiding architecture for this library.<p></li></ul><ul><li><a href='https://github.com/hugoduncan/swell'><code>swell</code></a> and <a href='https://github.com/bwo/conditions'><code>conditions</code></a> have been written to work with <a href='https://github.com/scgilardi/slingshot'><code>slingshot</code></a>.</li></ul>A walkthough and guide for <code>ribol</code> and its special forms can be found in <a href='#syntax-walkthrough'>Chapter 3</a>.</p><p>For those that wish to know more about conditional restarts, a comparison of different strategies that can be implemented is done in <a href='#control-strategies'>Chapter 4</a>. </p></div><div><a name="introduction"></a><h3>2.1 &nbsp;&nbsp; Introduction</h3></div><div><p><code>ribol</code> provides a conditional restart system. It can be thought of as an issue resolution system or <code>try++/catch++</code>. We use the term <code>issues</code> to differentiate them from <code>exceptions</code>. The difference is purely semantic: <code>issues</code> are <code>managed</code> whilst <code>exceptions</code> are <code>caught</code>. They all refer to abnormal program flow.</p><p><em>Restart systems</em> are somewhat analogous to a <em>management structure</em>. A low level function will do work until it encounter an abnormal situation. An <code>issue</code> is <code>raised</code> up the chain to higher-level functions. These can <code>manage</code> the situation depending upon the type of <code>issue</code> raised.</p></div><div><p>In the author's experience, there are two forms of <code>exceptions</code> that a programmer will encounter:</p><ol><li><strong>Programming Mistakes</strong> - These are a result of logic and reasoning errors, should not occur in normal operation and should be eliminated as soon as possible. The best strategy for dealing with this is to write unit tests and have functions fail early with a clear message to the programmer what the error is.<ul><li>Null pointers</li><li>Wrong inputs to functions</li></ul></li><li><strong>Exceptions due to Circumstances</strong> - These are circumstancial and should be considered part of the normal operation of the program.<ul><li>A database connection going down</li><li>A file not found</li><li>User input not valid</li></ol></li></ul><p>The common method of <code>try</code> and <code>catch</code> is not really needed when dealing with the <em>Type 1</em> exceptions and a little too weak when dealing with those of <em>Type 2</em>.</p><p>The net effect of using only the <code>try/catch</code> paradigm in application code is that in order to mitigate these <em>Type 2</em> exceptions, there requires a lot of defensive programming. This turns the middle level of the application into spagetti code with program control flow (<code>try/catch</code>) mixed in with program logic.</p><p>Conditional restarts provide a way for the top-level application to more cleanly deal with <em>Type 2</em> exceptions.</p></div><div><a name="raise-vs-throw"></a><h3>2.2 &nbsp;&nbsp; raise vs throw</h3></div><div><p><code>ribol</code> provide richer semantics for resolution of <em>Type 2</em> exceptions. Instead of <code>throw</code>, a new form <code>raise</code> is introduced (<a href='#raise-syntax'>e.2.1</a>).</p></div><div><a name="raise-syntax"></a><h4><i>e.2.1  &nbsp;-&nbsp; raise syntax</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">raise</span> <span class="p">{</span><span class="ss">:input-not-string</span> <span class="nv">true</span> <span class="ss">:input-data</span> <span class="mi">3</span><span class="p">}</span>     <span class="c1">;; issue payload</span>
+         <span class="p">(</span><span class="nf">option</span> <span class="ss">:use-na</span> <span class="p">[]</span> <span class="s">&quot;NA&quot;</span><span class="p">)</span>                   <span class="c1">;; option 1</span>
+         <span class="p">(</span><span class="nf">option</span> <span class="ss">:use-custom</span> <span class="p">[</span><span class="nv">n</span><span class="p">]</span> <span class="nv">n</span><span class="p">)</span>                 <span class="c1">;; option 2</span>
+         <span class="p">(</span><span class="nf">default</span> <span class="ss">:use-custom</span> <span class="s">&quot;nil&quot;</span><span class="p">))</span>               <span class="c1">;; default choice</span>
+</pre></div>
+</div><div><p><code>raise</code> differs to <code>throw</code> in a few ways:<ul><li>issues are of type <code>clojure.lang.ExceptionInfo</code>.</li><li>the payload is a <code>hash-map</code>.</li><li><strong>optional</strong>: multiple <code>option</code> handlers can be specified.</li><li><strong>optional</strong>: a <code>default</code> choice can be specified.</li></ul></div><div><a name="manage/on-vs-try/catch"></a><h3>2.3 &nbsp;&nbsp; manage/on vs try/catch</h3></div><div><p>Instead of the <code>try/catch</code> combination, <code>manage/on</code> is used (<a href='#manage-syntax'>e.2.2</a>).</p></div><div><a name="manage-syntax"></a><h4><i>e.2.2  &nbsp;-&nbsp; manage/on syntax</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span> <span class="p">(</span><span class="nf">complex-operation</span><span class="p">)</span>
+          <span class="p">(</span><span class="nf">on</span> <span class="ss">:node-working</span> <span class="p">[</span><span class="nv">node-name</span><span class="p">]</span>
+              <span class="p">(</span><span class="nf">choose</span> <span class="ss">:wait-for-node</span><span class="p">))</span>
+          <span class="p">(</span><span class="nf">on</span> <span class="ss">:node-failed</span> <span class="p">[</span><span class="nv">node-name</span><span class="p">]</span>
+              <span class="p">(</span><span class="nf">choose</span> <span class="ss">:reinit-node</span><span class="p">))</span>
+          <span class="p">(</span><span class="nf">on</span> <span class="ss">:database-down</span> <span class="p">[]</span>
+              <span class="p">(</span><span class="nf">choose</span> <span class="ss">:use-database</span> <span class="nv">backup-database</span><span class="p">))</span>
+          <span class="p">(</span><span class="nf">on</span> <span class="ss">:core-failed</span> <span class="p">[]</span>
+              <span class="p">(</span><span class="nf">terminate-everything</span><span class="p">)))</span>
+</pre></div>
+</div><div><p>Issues are managed through <code>on</code> handlers within a <code>manage</code> block. If any <code>issue</code> is raised with the manage block, it is passed to each handler. There are six ways that a handler can deal with a raised issue:<ul><li>directly (same as <code>try/catch</code>)</li><li>using <code>continue</code> to keep going with a given value</li><li>using <code>choose</code> to specify an option</li><li>using <code>escalate</code> to notify higher level managers</li><li>using <code>default</code> to allow the issue to resolve itself</li><li>using <code>fail</code> to throw an exception</li></ul>Using these six different different issue resolution directives, the programmer has the richness of language to craft complex process control flow strategies without mixing logic handling code in the middle tier. Restarts can also create new ways of thinking about the problem beyond the standard <code>throw/catch</code> mechanism and offer more elegant ways to build programs and workflows.</p></div><div><a name="syntax-walkthrough"></a><h2><b>3 &nbsp;&nbsp; Syntax Walkthrough</b></h2></div><div><a name="raise"></a><h3>3.1 &nbsp;&nbsp; raise</h3></div><div><p>The keyword <code>raise</code> is used to raise an 'issue'. At the simplest, when there is no <code>manage</code> blocks, <code>raise</code> just throws a <code>clojure.lang.ExceptionInfo</code> object (<a href='#raise-type'>e.3.1</a>). The payload of the issue can be extracted using <code>ex-data</code> (<a href='#raise-data'>e.3.2</a>).</p></div><div><a name="raise-type"></a><h4><i>e.3.1  &nbsp;-&nbsp; raise is of type clojure.lang.ExceptionInfo</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">raise</span> <span class="p">{</span><span class="ss">:error</span> <span class="nv">true</span><span class="p">})</span>
+
+<span class="nv">=&gt;</span> <span class="p">(</span><span class="nf">throws</span> <span class="nv">clojure.lang.ExceptionInfo</span><span class="p">)</span>
+</pre></div>
+</div><div><a name="raise-data"></a><h4><i>e.3.2  &nbsp;-&nbsp; `ex-data` extracts the issue payload</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">try</span>
+  <span class="p">(</span><span class="nf">raise</span> <span class="p">{</span><span class="ss">:error</span> <span class="nv">true</span><span class="p">})</span>
+  <span class="p">(</span><span class="nf">catch</span> <span class="nv">clojure.lang.ExceptionInfo</span> <span class="nv">e</span>
+    <span class="p">(</span><span class="nf">ex-data</span> <span class="nv">e</span><span class="p">)))</span>
+
+<span class="nv">=&gt;</span> <span class="p">{</span><span class="ss">:error</span> <span class="nv">true</span><span class="p">}</span>
+</pre></div>
+</div><div><p>The payload can be expressed as a <code>hash-map</code>, a <code>keyword</code> or a <code>vector</code>. We define the <code>raises-issue</code> (<a href='#payload-macro'>e.3.3</a>) macro to help explore this a little further</p></div><div><a name="payload-macro"></a><h4><i>e.3.3  &nbsp;-&nbsp; `payload` helper definition</i></h4><div class="highlight"><pre><span class="p">(</span><span class="kd">defmacro </span><span class="nv">raises-issue</span> <span class="p">[</span><span class="nv">payload</span><span class="p">]</span>
+ <span class="o">`</span><span class="p">(</span><span class="nf">throws</span> <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">e#</span><span class="p">]</span> <span class="p">(</span><span class="nb">= </span><span class="p">(</span><span class="nf">ex-data</span> <span class="nv">e#</span><span class="p">)</span> <span class="o">~</span><span class="nv">payload</span><span class="p">))))</span>
+</pre></div>
+</div><div><a name="hash-map-payloads"></a><h3><i>3.1.1 &nbsp;&nbsp; hash-map payloads</i></h3></div><div><p>Because the issue can be expressed as a hash-map, it is more general than using a class to represent exceptions.</p></div><div><h4><i>e.3.4</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">raise</span> <span class="p">{</span><span class="ss">:error</span> <span class="nv">true</span> <span class="ss">:data</span> <span class="s">&quot;data&quot;</span><span class="p">})</span>
+
+<span class="nv">=&gt;</span> <span class="p">(</span><span class="nf">raises-issue</span> <span class="p">{</span><span class="ss">:error</span> <span class="nv">true</span> <span class="ss">:data</span> <span class="s">&quot;data&quot;</span><span class="p">})</span>
+</pre></div>
+</div><div><a name="keyword-payloads"></a><h3><i>3.1.2 &nbsp;&nbsp; keyword payloads</i></h3></div><div><p>When a <code>keyword</code> is used, it is shorthand for a map with having the specified keyword with value <code>true</code>.</p></div><div><h4><i>e.3.5</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">raise</span> <span class="ss">:error</span><span class="p">)</span>
+
+<span class="nv">=&gt;</span> <span class="p">(</span><span class="nf">raises-issue</span> <span class="p">{</span><span class="ss">:error</span> <span class="nv">true</span><span class="p">})</span>
+</pre></div>
+</div><div><a name="vector-payloads"></a><h3><i>3.1.3 &nbsp;&nbsp; vector payloads</i></h3></div><div><p>Vectors can contain only keywords (<a href='#vector-keyword-payload'>e.3.6</a>) or both maps and keywords (<a href='#vector-mixed-payload'>e.3.7</a>). They are there mainly for syntacic sugar</p></div><div><a name="vector-keyword-payload"></a><h4><i>e.3.6  &nbsp;-&nbsp; vector keyword payload</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">raise</span> <span class="p">[</span><span class="ss">:lvl-1</span> <span class="ss">:lvl-2</span> <span class="ss">:lvl-3</span><span class="p">])</span>
+
+<span class="nv">=&gt;</span> <span class="p">(</span><span class="nf">raises-issue</span> <span class="p">{</span><span class="ss">:lvl-1</span> <span class="nv">true</span> <span class="ss">:lvl-2</span> <span class="nv">true</span> <span class="ss">:lvl-3</span> <span class="nv">true</span><span class="p">})</span>
+</pre></div>
+</div><div><a name="vector-mixed-payload"></a><h4><i>e.3.7  &nbsp;-&nbsp; vector mixed payload</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">raise</span> <span class="p">[</span><span class="ss">:error</span> <span class="p">{</span><span class="ss">:data</span> <span class="s">&quot;data&quot;</span><span class="p">}])</span>
+
+<span class="nv">=&gt;</span> <span class="p">(</span><span class="nf">raises-issue</span> <span class="p">{</span><span class="ss">:error</span> <span class="nv">true</span> <span class="ss">:data</span> <span class="s">&quot;data&quot;</span><span class="p">})</span>
+</pre></div>
+</div><div><a name="raise---options"></a><h3>3.2 &nbsp;&nbsp; raise - options</h3></div><div><p>Strategies for an unmanaged issue can be specified within the raise form:<ul><li><a href='#option-one'>e.3.8</a> specifies two options and the specifies the default option as <code>:use-nil</code>.</li><li><a href='#option-two'>e.3.9</a> sets the default as <code>:use-custom</code> with an argument of <code>10</code>.</li><li><a href='#option-none'>e.3.10</a> shows that if there is no default selection, then an exception will be thrown as per previously seen:</li></ul></div><div><a name="option-one"></a><h4><i>e.3.8  &nbsp;-&nbsp; default :use-nil</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">raise</span> <span class="ss">:error</span>
+       <span class="p">(</span><span class="nf">option</span> <span class="ss">:use-nil</span> <span class="p">[]</span> <span class="nv">nil</span><span class="p">)</span>
+       <span class="p">(</span><span class="nf">option</span> <span class="ss">:use-custom</span> <span class="p">[</span><span class="nv">n</span><span class="p">]</span> <span class="nv">n</span><span class="p">)</span>
+       <span class="p">(</span><span class="nf">default</span> <span class="ss">:use-nil</span><span class="p">))</span>
+
+<span class="nv">=&gt;</span> <span class="nv">nil</span>
+</pre></div>
+</div><div><a name="option-two"></a><h4><i>e.3.9  &nbsp;-&nbsp; default :use-custom</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">raise</span> <span class="ss">:error</span>
+       <span class="p">(</span><span class="nf">option</span> <span class="ss">:use-nil</span> <span class="p">[]</span> <span class="nv">nil</span><span class="p">)</span>
+       <span class="p">(</span><span class="nf">option</span> <span class="ss">:use-custom</span> <span class="p">[</span><span class="nv">n</span><span class="p">]</span> <span class="nv">n</span><span class="p">)</span>
+       <span class="p">(</span><span class="nf">default</span> <span class="ss">:use-custom</span> <span class="mi">10</span><span class="p">))</span>
+
+<span class="nv">=&gt;</span> <span class="mi">10</span>
+</pre></div>
+</div><div><a name="option-none"></a><h4><i>e.3.10  &nbsp;-&nbsp; no default</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">raise</span> <span class="ss">:error</span>
+       <span class="p">(</span><span class="nf">option</span> <span class="ss">:use-nil</span> <span class="p">[]</span> <span class="nv">nil</span><span class="p">)</span>
+       <span class="p">(</span><span class="nf">option</span> <span class="ss">:use-custom</span> <span class="p">[</span><span class="nv">n</span><span class="p">]</span> <span class="nv">n</span><span class="p">))</span>
+
+<span class="nv">=&gt;</span> <span class="p">(</span><span class="nf">raises-issue</span> <span class="p">{</span><span class="ss">:error</span> <span class="nv">true</span><span class="p">})</span>
+</pre></div>
+</div><div><a name="manage"></a><h3>3.3 &nbsp;&nbsp; manage</h3></div><div><p>Manage blocks set up execution scope and provide handlers and options to manage abnormal program flow.</p><p>A function <code>half-int</code> is defined (<a href='#half-int-definititon'>e.3.11</a>). It checks to see if the <code>input</code> is even. If the <code>input</code> is even, the function returns the <code>input</code> divided by <code>2</code>. if it is not, it raises an <code>:odd-number</code> issue.</p></div><div><a name="half-int-definition"></a><h4><i>e.3.11  &nbsp;-&nbsp; half-int definition</i></h4><div class="highlight"><pre><span class="p">(</span><span class="kd">defn </span><span class="nv">half-int</span> <span class="p">[</span><span class="nv">n</span><span class="p">]</span>
+  <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">= </span><span class="mi">0</span> <span class="p">(</span><span class="nf">mod</span> <span class="nv">n</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="p">(</span><span class="nb">quot </span><span class="nv">n</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">raise</span> <span class="p">[</span><span class="ss">:odd-number</span> <span class="p">{</span><span class="ss">:value</span> <span class="nv">n</span><span class="p">}])))</span>
+</pre></div>
+</div><div><p>The output of <code>half-int</code> can be seen below for even (<a href='#half-int-even'>e.3.12</a>) and odd (<a href='#half-int-odd'>e.3.13</a>)numbers</p></div><div><a name="half-int-even"></a><h4><i>e.3.12  &nbsp;-&nbsp; half-int even</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">half-int</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="nv">=&gt;</span> <span class="mi">1</span>
+</pre></div>
+</div><div><a name="half-int-odd"></a><h4><i>e.3.13  &nbsp;-&nbsp; half-int odd</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">half-int</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="nv">=&gt;</span> <span class="p">(</span><span class="nf">raises-issue</span> <span class="p">{</span><span class="ss">:odd-number</span> <span class="nv">true</span> <span class="ss">:value</span> <span class="mi">3</span><span class="p">})</span>
+</pre></div>
+</div><div><p>Outputs of <code>half-int</code> used within a higher-order function are seen for normal flow (<a href='#half-int-normal-flow'>e.3.14</a>) and abnormal flow (<a href='#half-int-aabnormal-flow'>e.3.15</a>)</p></div><div><a name="half-int-normal-flow"></a><h4><i>e.3.14  &nbsp;-&nbsp; half-int normal flow</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">mapv</span> <span class="nv">half-int</span> <span class="p">[</span><span class="mi">2</span> <span class="mi">4</span> <span class="mi">6</span><span class="p">])</span>
+
+<span class="nv">=&gt;</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span><span class="p">]</span>
+</pre></div>
+</div><div><a name="half-int-abnormal-flow"></a><h4><i>e.3.15  &nbsp;-&nbsp; half-int abnormal flow</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">mapv</span> <span class="nv">half-int</span> <span class="p">[</span><span class="mi">2</span> <span class="mi">3</span> <span class="mi">6</span><span class="p">])</span>
+
+<span class="nv">=&gt;</span> <span class="p">(</span><span class="nf">raises-issue</span> <span class="p">{</span><span class="ss">:odd-number</span> <span class="nv">true</span> <span class="ss">:value</span> <span class="mi">3</span><span class="p">})</span>
+</pre></div>
+</div><div><a name="on"></a><h3>3.4 &nbsp;&nbsp; on</h3></div><div><p>Within the <code>manage</code> form, issue handlers are specified with <code>on</code>:</p></div><div><a name="handling-issues"></a><h4><i>e.3.16  &nbsp;-&nbsp; handling issues</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>
+ <span class="p">(</span><span class="nf">mapv</span> <span class="nv">half-int</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">])</span>
+ <span class="p">(</span><span class="nf">on</span> <span class="ss">:odd-number</span> <span class="p">[]</span>
+     <span class="s">&quot;odd-number-exception&quot;</span><span class="p">))</span>
+
+<span class="nv">=&gt;</span> <span class="s">&quot;odd-number-exception&quot;</span>
+</pre></div>
+</div><div><p>This resembles the classical <code>try/catch</code> situation:</p></div><div><a name="try/catch-version"></a><h4><i>e.3.17  &nbsp;-&nbsp; try/catch version</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">try</span>
+  <span class="p">(</span><span class="nf">mapv</span> <span class="nv">half-int</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">catch</span> <span class="nv">Throwable</span> <span class="nv">t</span>
+    <span class="s">&quot;odd-number-exception&quot;</span><span class="p">))</span>
+
+<span class="nv">=&gt;</span> <span class="s">&quot;odd-number-exception&quot;</span>
+</pre></div>
+</div><div><p>However, we can retrieve the contents of the issue by providing map keys that we wish to retrieve:</p></div><div><a name="accessing-issue-data"></a><h4><i>e.3.18  &nbsp;-&nbsp; accessing issue data</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>
+ <span class="p">(</span><span class="nf">mapv</span> <span class="nv">half-int</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">])</span>
+ <span class="p">(</span><span class="nf">on</span> <span class="ss">:odd-number</span> <span class="p">[</span><span class="nv">odd-number</span> <span class="nv">value</span><span class="p">]</span>
+     <span class="p">(</span><span class="nb">str </span><span class="s">&quot;odd-number: &quot;</span> <span class="nv">odd-number</span> <span class="s">&quot;, value: &quot;</span> <span class="nv">value</span><span class="p">)))</span>
+
+<span class="nv">=&gt;</span> <span class="s">&quot;odd-number: true, value: 1&quot;</span>
+</pre></div>
+</div><div><a name="on---continue"></a><h3>3.5 &nbsp;&nbsp; on - continue</h3></div><div><p>The <code>continue</code> special form is used to continue the operation from the point that the <code>issue</code> was raised (<a href='#continue-using-nan'>e.3.19</a>). It must be pointed out that this is impossible to do using the <code>try/catch</code> paradigm because the all the information from the stack will be lost.    </p><p>  The <code>on</code> handler can take keys of the <code>payload</code> of the raised <code>issue</code> as parameters. In <a href='#continue-using-str'>e.3.20</a>, a vector containing strings of the odd numbers are formed. Whereas in <a href='#continue-using-fractions'>e.3.21</a>, the on handler puts in fractions instead.</p></div><div><a name="continue-using-nan"></a><h4><i>e.3.19  &nbsp;-&nbsp; continue using nan</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>
+ <span class="p">(</span><span class="nf">mapv</span> <span class="nv">half-int</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">])</span>
+ <span class="p">(</span><span class="nf">on</span> <span class="ss">:odd-number</span> <span class="p">[]</span>
+     <span class="p">(</span><span class="nf">continue</span> <span class="ss">:nan</span><span class="p">)))</span>
+
+<span class="nv">=&gt;</span> <span class="p">[</span><span class="ss">:nan</span> <span class="mi">1</span> <span class="ss">:nan</span> <span class="mi">2</span><span class="p">]</span>
+</pre></div>
+</div><div><a name="continue-using-str"></a><h4><i>e.3.20  &nbsp;-&nbsp; continue using str</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>
+ <span class="p">(</span><span class="nf">mapv</span> <span class="nv">half-int</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">])</span>
+ <span class="p">(</span><span class="nf">on</span> <span class="ss">:odd-number</span> <span class="p">[</span><span class="nv">value</span><span class="p">]</span>
+     <span class="p">(</span><span class="nf">continue</span> <span class="p">(</span><span class="nb">str </span><span class="nv">value</span><span class="p">))))</span>
+
+<span class="nv">=&gt;</span> <span class="p">[</span><span class="s">&quot;1&quot;</span> <span class="mi">1</span> <span class="s">&quot;3&quot;</span> <span class="mi">2</span><span class="p">]</span>
+</pre></div>
+</div><div><a name="continue-using-fractions"></a><h4><i>e.3.21  &nbsp;-&nbsp; continue using fractions</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>
+ <span class="p">(</span><span class="nf">mapv</span> <span class="nv">half-int</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">])</span>
+ <span class="p">(</span><span class="nf">on</span> <span class="ss">:odd-number</span> <span class="p">[</span><span class="nv">value</span><span class="p">]</span>
+     <span class="p">(</span><span class="nf">continue</span> <span class="p">(</span><span class="nb">/ </span><span class="nv">value</span> <span class="mi">2</span><span class="p">))))</span>
+
+<span class="nv">=&gt;</span> <span class="p">[</span><span class="mi">1</span><span class="nv">/2</span> <span class="mi">1</span> <span class="mi">3</span><span class="nv">/2</span> <span class="mi">2</span><span class="p">]</span>
+</pre></div>
+</div><div><a name="on---fail"></a><h3>3.6 &nbsp;&nbsp; on - fail</h3></div><div><p><code>fail</code> special form will forcibly cause an exception to be thrown. It is used when there is no need to advise managers of situation. More data can be added to the failure (<a href='#fail-example'>e.3.22</a>).</p></div><div><a name="fail-example"></a><h4><i>e.3.22  &nbsp;-&nbsp; fail example</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>
+  <span class="p">(</span><span class="nf">mapv</span> <span class="nv">half-int</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">on</span> <span class="ss">:odd-number</span> <span class="p">[]</span>
+    <span class="p">(</span><span class="nf">fail</span> <span class="p">[</span><span class="ss">:unhandled</span> <span class="ss">:error</span><span class="p">])))</span>
+
+<span class="nv">=&gt;</span> <span class="p">(</span><span class="nf">raises-issue</span> <span class="p">{</span><span class="ss">:value</span> <span class="mi">1</span> <span class="ss">:odd-number</span> <span class="nv">true</span> <span class="ss">:unhandled</span> <span class="nv">true</span> <span class="ss">:error</span> <span class="nv">true</span><span class="p">})</span>
+</pre></div>
+</div><div><a name="on---choose"></a><h3>3.7 &nbsp;&nbsp; on - choose</h3></div><div><p>The <code>choose</code> special form is used to jump to a <code>option</code>. A new function <code>half-int-b</code> (<a href='#half-int-b-definition'>e.3.23</a>) is defined giving options to jump to within the <code>raise</code> form. Its usage can be seen in <a href='#choose-ex-1'>e.3.24</a> where different paths can be chosen depending upon <code>:value</code>. An option can also be specified in the manage block (<a href='#choose-ex-2'>e.3.25</a>). Options can also be overridden when specified in higher manage blocks (<a href='#choose-ex-3'>e.3.26</a>). </p></div><div><a name="half-int-b-definition"></a><h4><i>e.3.23  &nbsp;-&nbsp; half-int-b definition</i></h4><div class="highlight"><pre><span class="p">(</span><span class="kd">defn </span><span class="nv">half-int-b</span> <span class="p">[</span><span class="nv">n</span><span class="p">]</span>
+<span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">= </span><span class="mi">0</span> <span class="p">(</span><span class="nf">mod</span> <span class="nv">n</span> <span class="mi">2</span><span class="p">))</span>
+  <span class="p">(</span><span class="nb">quot </span><span class="nv">n</span> <span class="mi">2</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">raise</span> <span class="p">[</span><span class="ss">:odd-number</span> <span class="p">{</span><span class="ss">:value</span> <span class="nv">n</span><span class="p">}]</span>
+    <span class="p">(</span><span class="nf">option</span> <span class="ss">:use-nil</span> <span class="p">[]</span> <span class="nv">nil</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">option</span> <span class="ss">:use-nan</span> <span class="p">[]</span> <span class="ss">:nan</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">option</span> <span class="ss">:use-custom</span> <span class="p">[</span><span class="nv">n</span><span class="p">]</span> <span class="nv">n</span><span class="p">))))</span>
+</pre></div>
+</div><div><a name="choose-ex-1"></a><h4><i>e.3.24  &nbsp;-&nbsp; choosing different paths based on value</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>
+ <span class="p">(</span><span class="nf">mapv</span> <span class="nv">half-int-b</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">])</span>
+ <span class="p">(</span><span class="nf">on</span> <span class="p">{</span><span class="ss">:value</span> <span class="mi">1</span><span class="p">}</span> <span class="p">[]</span>
+     <span class="p">(</span><span class="nf">choose</span> <span class="ss">:use-nil</span><span class="p">))</span>
+ <span class="p">(</span><span class="nf">on</span> <span class="p">{</span><span class="ss">:value</span> <span class="mi">3</span><span class="p">}</span> <span class="p">[</span><span class="nv">value</span><span class="p">]</span>
+     <span class="p">(</span><span class="nf">choose</span> <span class="ss">:use-custom</span> <span class="p">(</span><span class="nb">/ </span><span class="nv">value</span> <span class="mi">2</span><span class="p">))))</span>
+
+<span class="nv">=&gt;</span> <span class="p">[</span><span class="nv">nil</span> <span class="mi">1</span> <span class="mi">3</span><span class="nv">/2</span> <span class="mi">2</span><span class="p">]</span>
+</pre></div>
+</div><div><a name="choose-ex-2"></a><h4><i>e.3.25  &nbsp;-&nbsp; choosing option within manage form</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>
+ <span class="p">(</span><span class="nf">mapv</span> <span class="nv">half-int-b</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">])</span>
+ <span class="p">(</span><span class="nf">on</span> <span class="ss">:odd-number</span> <span class="p">[]</span>
+     <span class="p">(</span><span class="nf">choose</span> <span class="ss">:use-empty</span><span class="p">))</span>
+ <span class="p">(</span><span class="nf">option</span> <span class="ss">:use-empty</span> <span class="p">[]</span> <span class="p">[]))</span>
+
+<span class="nv">=&gt;</span> <span class="p">[]</span>
+</pre></div>
+</div><div><a name="choose-ex-3"></a><h4><i>e.3.26  &nbsp;-&nbsp; overwriting :use-nil within manage form</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>
+ <span class="p">(</span><span class="nf">mapv</span> <span class="nv">half-int-b</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">])</span>
+ <span class="p">(</span><span class="nf">on</span> <span class="ss">:odd-number</span> <span class="p">[]</span>
+     <span class="p">(</span><span class="nf">choose</span> <span class="ss">:use-nil</span><span class="p">))</span>
+ <span class="p">(</span><span class="nf">option</span> <span class="ss">:use-nil</span> <span class="p">[]</span> <span class="nv">nil</span><span class="p">))</span>
+
+<span class="nv">=&gt;</span> <span class="nv">nil</span>
+</pre></div>
+</div><div><a name="on---default"></a><h3>3.8 &nbsp;&nbsp; on - default</h3></div><div><p> The <code>default</code> handler short-circuits the raise process and skips managers further up to use an issue's default option. A function is defined (<a href='#half-int-c-definition'>e.3.27</a>) and used (<a href='#half-int-c-example'>e.3.28</a>) to show how the <code>default</code> form behaves. </p></div><div><a name="half-int-c-definition"></a><h4><i>e.3.27  &nbsp;-&nbsp; half-int-c definition</i></h4><div class="highlight"><pre><span class="p">(</span><span class="kd">defn </span><span class="nv">half-int-c</span> <span class="p">[</span><span class="nv">n</span><span class="p">]</span>
+  <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">= </span><span class="mi">0</span> <span class="p">(</span><span class="nf">mod</span> <span class="nv">n</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="p">(</span><span class="nb">quot </span><span class="nv">n</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">raise</span> <span class="p">[</span><span class="ss">:odd-number</span> <span class="p">{</span><span class="ss">:value</span> <span class="nv">n</span><span class="p">}]</span>
+           <span class="p">(</span><span class="nf">option</span> <span class="ss">:use-nil</span> <span class="p">[]</span> <span class="nv">nil</span><span class="p">)</span>
+           <span class="p">(</span><span class="nf">option</span> <span class="ss">:use-custom</span> <span class="p">[</span><span class="nv">n</span><span class="p">]</span> <span class="nv">n</span><span class="p">)</span>
+           <span class="p">(</span><span class="nf">default</span> <span class="ss">:use-custom</span> <span class="ss">:odd</span><span class="p">))))</span>
+</pre></div>
+</div><div><a name="half-int-c-example"></a><h4><i>e.3.28  &nbsp;-&nbsp; half-int-c example</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>
+ <span class="p">(</span><span class="nf">mapv</span> <span class="nv">half-int-c</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">])</span>
+ <span class="p">(</span><span class="nf">on</span> <span class="ss">:odd-number</span> <span class="p">[</span><span class="nv">value</span><span class="p">]</span> <span class="p">(</span><span class="nf">default</span><span class="p">)))</span>
+
+<span class="nv">=&gt;</span> <span class="p">[</span><span class="ss">:odd</span> <span class="mi">1</span> <span class="ss">:odd</span> <span class="mi">2</span><span class="p">]</span>
+</pre></div>
+</div><div><p>The default form can even refer to an option that has to be implemented higher up in scope. Another function is defined (<a href='#half-int-d-definition'>e.3.29</a>) and used (<a href='#d-alone'>e.3.30</a> and <a href='#d-higher'>e.3.31</a>) to show this particular case.</p></div><div><a name="half-int-d-definition"></a><h4><i>e.3.29</i></h4><div class="highlight"><pre><span class="p">(</span><span class="kd">defn </span><span class="nv">half-int-d</span> <span class="p">[</span><span class="nv">n</span><span class="p">]</span>
+  <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">= </span><span class="mi">0</span> <span class="p">(</span><span class="nf">mod</span> <span class="nv">n</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="p">(</span><span class="nb">quot </span><span class="nv">n</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">raise</span> <span class="p">[</span><span class="ss">:odd-number</span> <span class="p">{</span><span class="ss">:value</span> <span class="nv">n</span><span class="p">}]</span>
+           <span class="p">(</span><span class="nf">default</span> <span class="ss">:use-empty</span><span class="p">))))</span>
+</pre></div>
+</div><div><a name="d-alone"></a><h4><i>e.3.30  &nbsp;-&nbsp; half-int-d alone</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">half-int-d</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="nv">=&gt;</span> <span class="p">(</span><span class="nf">throws</span> <span class="nv">java.lang.Exception</span> <span class="s">&quot;RAISE_CHOOSE: the label :use-empty has not been implemented&quot;</span><span class="p">)</span>
+</pre></div>
+</div><div><a name="d-higher"></a><h4><i>e.3.31  &nbsp;-&nbsp; half-int-d inside handler</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>
+ <span class="p">(</span><span class="nf">mapv</span> <span class="nv">half-int-d</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">])</span>
+ <span class="p">(</span><span class="nf">option</span> <span class="ss">:use-empty</span> <span class="p">[]</span> <span class="p">[])</span>
+ <span class="p">(</span><span class="nf">on</span> <span class="ss">:odd-number</span> <span class="p">[]</span>
+     <span class="p">(</span><span class="nf">default</span><span class="p">)))</span>
+
+<span class="nv">=&gt;</span> <span class="p">[]</span>
+</pre></div>
+</div><div><a name="on---escalate"></a><h3>3.9 &nbsp;&nbsp; on - escalate</h3></div><div><p>The <code>escalate</code> form is used to add additional information to the issue. In the following example, if a <code>3</code> or a <code>5</code> is seen, then the flag <code>:three-or-five</code> is added to the issue and the <code>:odd-number</code> flag is set false. </p></div><div><a name="half-array-e-definition"></a><h4><i>e.3.32</i></h4><div class="highlight"><pre><span class="p">(</span><span class="kd">defn </span><span class="nv">half-array-e</span> <span class="p">[</span><span class="nv">arr</span><span class="p">]</span>
+  <span class="p">(</span><span class="nf">manage</span>
+    <span class="p">(</span><span class="nf">mapv</span> <span class="nv">half-int-d</span> <span class="nv">arr</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">on</span> <span class="p">{</span><span class="ss">:value</span> <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">v</span><span class="p">]</span> <span class="p">(</span><span class="o">#</span><span class="p">{</span><span class="mi">3</span> <span class="mi">5</span><span class="p">}</span> <span class="nv">v</span><span class="p">))}</span> <span class="p">[</span><span class="nv">value</span><span class="p">]</span>
+        <span class="p">(</span><span class="nf">escalate</span> <span class="p">[</span><span class="ss">:three-or-five</span> <span class="p">{</span><span class="ss">:odd-number</span> <span class="nv">false</span><span class="p">}]))))</span>
+</pre></div>
+</div><div><a name="escalate-ex-1"></a><h4><i>e.3.33  &nbsp;-&nbsp; escalation example</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>
+  <span class="p">(</span><span class="nf">half-array-e</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span><span class="p">])</span>
+  <span class="p">(</span><span class="nf">on</span> <span class="ss">:odd-number</span> <span class="p">[</span><span class="nv">value</span><span class="p">]</span>
+      <span class="p">(</span><span class="nf">continue</span> <span class="p">(</span><span class="nb">* </span><span class="nv">value</span> <span class="mi">10</span><span class="p">)))</span>
+  <span class="p">(</span><span class="nf">on</span> <span class="ss">:three-or-five</span> <span class="p">[</span><span class="nv">value</span><span class="p">]</span>
+      <span class="p">(</span><span class="nf">continue</span> <span class="p">(</span><span class="nb">* </span><span class="nv">value</span> <span class="mi">100</span><span class="p">))))</span>
+
+<span class="nv">=&gt;</span> <span class="p">[</span><span class="mi">10</span> <span class="mi">1</span> <span class="mi">300</span> <span class="mi">2</span> <span class="mi">500</span><span class="p">]</span>
+</pre></div>
+</div><div><p>Program decision points can be changed by higher level managers through <code>escalate</code></p></div><div><h4><i>e.3.34</i></h4><div class="highlight"><pre><span class="p">(</span><span class="kd">defn </span><span class="nv">half-int-f</span> <span class="p">[</span><span class="nv">n</span><span class="p">]</span>
+   <span class="p">(</span><span class="nf">manage</span>
+     <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">= </span><span class="mi">0</span> <span class="p">(</span><span class="nf">mod</span> <span class="nv">n</span> <span class="mi">2</span><span class="p">))</span>
+       <span class="p">(</span><span class="nb">quot </span><span class="nv">n</span> <span class="mi">2</span><span class="p">)</span>
+       <span class="p">(</span><span class="nf">raise</span> <span class="p">[</span><span class="ss">:odd-number</span> <span class="p">{</span><span class="ss">:value</span> <span class="nv">n</span><span class="p">}]</span>
+         <span class="p">(</span><span class="nf">option</span> <span class="ss">:use-nil</span> <span class="p">[]</span> <span class="nv">nil</span><span class="p">)</span>
+         <span class="p">(</span><span class="nf">option</span> <span class="ss">:use-custom</span> <span class="p">[</span><span class="nv">n</span><span class="p">]</span> <span class="nv">n</span><span class="p">)</span>
+         <span class="p">(</span><span class="nf">default</span> <span class="ss">:use-nil</span><span class="p">)))</span>
+
+      <span class="p">(</span><span class="nf">on</span> <span class="ss">:odd-number</span> <span class="p">[]</span>
+        <span class="p">(</span><span class="nf">escalate</span> <span class="ss">:odd-number</span>
+          <span class="p">(</span><span class="nf">option</span> <span class="ss">:use-zero</span> <span class="p">[]</span> <span class="mi">0</span><span class="p">)</span>
+          <span class="p">(</span><span class="nf">default</span> <span class="ss">:use-custom</span> <span class="ss">:nan</span><span class="p">)))))</span>
+
+  <span class="p">(</span><span class="nf">half-int-f</span> <span class="mi">3</span><span class="p">)</span> <span class="nv">=&gt;</span> <span class="ss">:nan</span>  <span class="c1">;; (instead of nil)</span>
+  <span class="p">(</span><span class="nf">mapv</span> <span class="nv">half-int-f</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">])</span>
+
+  <span class="nv">=&gt;</span> <span class="p">[</span><span class="ss">:nan</span> <span class="mi">1</span> <span class="ss">:nan</span> <span class="mi">2</span><span class="p">]</span> <span class="c1">;; notice that the default is overridden</span>
+
+  <span class="p">(</span><span class="nf">manage</span>
+    <span class="p">(</span><span class="nf">mapv</span> <span class="nv">half-int-f</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">])</span>
+    <span class="p">(</span><span class="nf">on</span> <span class="ss">:odd-number</span> <span class="p">[]</span>
+      <span class="p">(</span><span class="nf">choose</span> <span class="ss">:use-zero</span><span class="p">)))</span>
+    
+  <span class="nv">=&gt;</span> <span class="p">[</span><span class="mi">0</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">2</span><span class="p">]</span>   <span class="c1">;; using an escalated option</span>
+</pre></div>
+</div><div><p>Options specified higher up are favored:</p></div><div><h4><i>e.3.35</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>
+    <span class="p">(</span><span class="nf">mapv</span> <span class="nv">half-int-f</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">])</span>
+    <span class="p">(</span><span class="nf">on</span> <span class="ss">:odd-number</span> <span class="p">[]</span>
+      <span class="p">(</span><span class="nf">choose</span> <span class="ss">:use-nil</span><span class="p">)))</span>
+      
+    <span class="nv">=&gt;</span> <span class="p">[</span><span class="nv">nil</span> <span class="mi">1</span> <span class="nv">nil</span> <span class="mi">2</span><span class="p">]</span>
+
+    <span class="p">(</span><span class="nf">manage</span>
+     <span class="p">(</span><span class="nf">mapv</span> <span class="nv">half-int-f</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">])</span>
+     <span class="p">(</span><span class="nf">on</span> <span class="ss">:odd-number</span> <span class="p">[]</span>
+       <span class="p">(</span><span class="nf">choose</span> <span class="ss">:use-nil</span><span class="p">))</span>
+     <span class="p">(</span><span class="nf">option</span> <span class="ss">:use-nil</span> <span class="p">[]</span> <span class="nv">nil</span><span class="p">))</span>
+     
+   <span class="nv">=&gt;</span> <span class="nv">nil</span>  <span class="c1">;; notice that the :use-nil is overridden </span>
+</pre></div>
+</div><div><a name="control-strategies"></a><h2><b>4 &nbsp;&nbsp; Control Strategies</b></h2></div><div><p>This is a comprehensive (though non-exhaustive) list of program control strategies that can be used with <code>ribol</code>. It can be noted that the <code>try/catch</code> paradigm can implement sections <a href='#normal'>4.1</a> and <a href='#catch'>4.2</a>. Other clojure restart libraries such as <code>errorkit</code>, <code>swell</code> and <code>conditions</code> additionally implement sections <a href='#continue'>4.3</a>, <a href='#choose'>4.4</a> and <a href='#choose-more'>4.5</a>. </p><p><code>ribol</code> supports novel (and more natural) program control mechanics through the <code>escalate</code> (<a href='#escalate'>4.6</a>), <code>fail</code> (<a href='#fail'>4.7</a>) and  <code>default</code> (<a href='#default'>4.8</a>) special forms as well as branching support in the <code>on</code> special form (<a href='#on-form'>4.9</a>).</p></div><div><a name="normal"></a><h3>4.1 &nbsp;&nbsp; Normal</h3></div><div><a name="no-raise"></a><h3><i>4.1.1 &nbsp;&nbsp; No Raise</i></h3></div><div><p>The most straightforward code is one where no issues raised (<a href='#ribol-normal-eq'>e.4.1</a>).</p></div><div><a name="ribol-normal-eq"></a><h4><i>e.4.1  &nbsp;-&nbsp; No Issues</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>                          <span class="c1">;; L2</span>
+  <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="p">(</span><span class="nf">manage</span> <span class="mi">3</span><span class="p">)])</span>              <span class="c1">;; L1 and L0</span>
+
+<span class="nv">=&gt;</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span><span class="p">]</span>
+</pre></div>
+</div><div class="figure"><h4><i>fig.1  &nbsp;-&nbsp; No Issues Flow</i></h4><div class="img"><img height="300px" src="img/norm_normal.png" title="No Issues Flow" /></div><p /></div><div><a name="issue-raised"></a><h3><i>4.1.2 &nbsp;&nbsp; Issue Raised</i></h3></div><div><p>If there is an issue raised with no handler, it will <code>throw</code> an exception.</p></div><div><a name="unmanaged-issue"></a><h4><i>e.4.2  &nbsp;-&nbsp; Unmanaged Issue</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>                          <span class="c1">;; L2</span>
+ <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="p">(</span><span class="nf">manage</span>                    <span class="c1">;; L1</span>
+       <span class="p">(</span><span class="nf">raise</span> <span class="p">{</span><span class="ss">:A</span> <span class="nv">true</span><span class="p">}))])</span>      <span class="c1">;; L0</span>
+
+<span class="nv">=&gt;</span> <span class="p">(</span><span class="nf">raises-issue</span> <span class="p">{</span><span class="ss">:A</span> <span class="nv">true</span><span class="p">})</span>
+</pre></div>
+</div><div class="figure"><h4><i>fig.2  &nbsp;-&nbsp; Unmanaged Issue Flow</i></h4><div class="img"><img height="300px" src="img/norm_unmanaged.png" title="Unmanaged Issue Flow" /></div><p /></div><div><a name="catch"></a><h3>4.2 &nbsp;&nbsp; Catch</h3></div><div><p>Once an issue has been raised, it can be handled within a managed scope through the use of 'on'. 'manage/on' is the equivalent to 'try/catch' in the following two cases:</p></div><div><a name="first-level-catch"></a><h3><i>4.2.1 &nbsp;&nbsp; First Level Catch</i></h3></div><div><a name="catch-on-:a"></a><h4><i>e.4.3  &nbsp;-&nbsp; Catch on :A</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>                          <span class="c1">;; L2</span>
+ <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="p">(</span><span class="nf">manage</span>                    <span class="c1">;; L1</span>
+       <span class="p">(</span><span class="nf">raise</span> <span class="ss">:A</span><span class="p">)</span>                <span class="c1">;; L0</span>
+       <span class="p">(</span><span class="nf">on</span> <span class="ss">:A</span> <span class="p">[]</span> <span class="ss">:A</span><span class="p">))]</span>           <span class="c1">;; H1A</span>
+ <span class="p">(</span><span class="nf">on</span> <span class="ss">:B</span> <span class="p">[]</span> <span class="ss">:B</span><span class="p">))</span>                  <span class="c1">;; H2B</span>
+
+<span class="nv">=&gt;</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="ss">:A</span><span class="p">]</span>
+</pre></div>
+</div><div class="figure"><h4><i>fig.3  &nbsp;-&nbsp; Catch on :A Flow</i></h4><div class="img"><img height="300px" src="img/catch_flow_a.png" title="Catch on :A Flow" /></div><p /></div><div><a name="second-level-catch"></a><h3><i>4.2.2 &nbsp;&nbsp; Second Level Catch</i></h3></div><div><a name="catch-on-:b"></a><h4><i>e.4.4  &nbsp;-&nbsp; Catch on :B</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>                          <span class="c1">;; L2</span>
+ <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="p">(</span><span class="nf">manage</span>                    <span class="c1">;; L1</span>
+       <span class="p">(</span><span class="nf">raise</span> <span class="ss">:B</span><span class="p">)</span>                <span class="c1">;; L0</span>
+       <span class="p">(</span><span class="nf">on</span> <span class="ss">:A</span> <span class="p">[]</span> <span class="ss">:A</span><span class="p">))]</span>           <span class="c1">;; H1A</span>
+ <span class="p">(</span><span class="nf">on</span> <span class="ss">:B</span> <span class="p">[]</span> <span class="ss">:B</span><span class="p">))</span>                  <span class="c1">;; H2B</span>
+
+<span class="nv">=&gt;</span> <span class="ss">:B</span>
+</pre></div>
+</div><div class="figure"><h4><i>fig.4  &nbsp;-&nbsp; Catch on :B Flow</i></h4><div class="img"><img height="300px" src="img/catch_flow_b.png" title="Catch on :B Flow" /></div><p /></div><div><a name="continue"></a><h3>4.3 &nbsp;&nbsp; Continue</h3></div><div><p>The 'continue' form signals that the program    should resume at the point that the issue    was raised.</p></div><div><a name="first-level-continue"></a><h3><i>4.3.1 &nbsp;&nbsp; First Level Continue</i></h3></div><div><p>In the first case, this gives the same result as <code>try/catch</code>.</p></div><div><a name="continue-on-:a"></a><h4><i>e.4.5  &nbsp;-&nbsp; Continue on :A</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>                          <span class="c1">;; L2</span>
+ <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="p">(</span><span class="nf">manage</span>                    <span class="c1">;; L1</span>
+       <span class="p">(</span><span class="nf">raise</span> <span class="ss">:A</span><span class="p">)</span>                <span class="c1">;; L0</span>
+       <span class="p">(</span><span class="nf">on</span> <span class="ss">:A</span> <span class="p">[]</span>                 <span class="c1">;; H1A</span>
+           <span class="p">(</span><span class="nf">continue</span> <span class="ss">:3A</span><span class="p">)))]</span>
+ <span class="p">(</span><span class="nf">on</span> <span class="ss">:B</span> <span class="p">[]</span>                       <span class="c1">;; H2B</span>
+     <span class="p">(</span><span class="nf">continue</span> <span class="ss">:3B</span><span class="p">)))</span>
+
+<span class="nv">=&gt;</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="ss">:3A</span><span class="p">]</span>
+</pre></div>
+</div><div class="figure"><h4><i>fig.5  &nbsp;-&nbsp; Continue on :A Flow</i></h4><div class="img"><img height="300px" src="img/continue_flow_a.png" title="Continue on :A Flow" /></div><p /></div><div><a name="second-level-continue"></a><h3><i>4.3.2 &nbsp;&nbsp; Second Level Continue</i></h3></div><div><p>However, it can be seen that when 'continue' is used    on the outer manage blocks, it provides the 'manage/on'    a way for top tier forms to affect the bottom tier forms    without manipulating logic in the middle tier</p></div><div><a name="continue-on-:b"></a><h4><i>e.4.6  &nbsp;-&nbsp; Continue on :B</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>                          <span class="c1">;; L2</span>
+ <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="p">(</span><span class="nf">manage</span>                    <span class="c1">;; L1</span>
+       <span class="p">(</span><span class="nf">raise</span> <span class="ss">:B</span><span class="p">)</span>                <span class="c1">;; L0</span>
+       <span class="p">(</span><span class="nf">on</span> <span class="ss">:A</span> <span class="p">[]</span>                 <span class="c1">;; H1A</span>
+           <span class="p">(</span><span class="nf">continue</span> <span class="ss">:3A</span><span class="p">)))]</span>
+ <span class="p">(</span><span class="nf">on</span> <span class="ss">:B</span> <span class="p">[]</span>                       <span class="c1">;; H2B</span>
+     <span class="p">(</span><span class="nf">continue</span> <span class="ss">:3B</span><span class="p">)))</span>
+
+<span class="nv">=&gt;</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="ss">:3B</span><span class="p">]</span>
+</pre></div>
+</div><div class="figure"><h4><i>fig.6  &nbsp;-&nbsp; Continue on :B Flow</i></h4><div class="img"><img height="300px" src="img/continue_flow_b.png" title="Continue on :B Flow" /></div><p /></div><div><a name="choose"></a><h3>4.4 &nbsp;&nbsp; Choose</h3></div><div><p><code>choose</code> and <code>option</code> work together within manage scopes. A raised issue can have options attached to it, just a worker might give their manager certain options to choose from when an unexpected issue arises. Options can be chosen that lie anywhere within the manage blocks.</p></div><div><a name="choose-lower-level"></a><h3><i>4.4.1 &nbsp;&nbsp; Choose Lower-Level</i></h3></div><div><a name="choose-:x"></a><h4><i>e.4.7  &nbsp;-&nbsp; Choose :X</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>                           <span class="c1">;; L2</span>
+ <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="p">(</span><span class="nf">manage</span>                     <span class="c1">;; L1</span>
+        <span class="p">(</span><span class="nf">raise</span> <span class="ss">:A</span>                  <span class="c1">;; L0</span>
+               <span class="p">(</span><span class="nf">option</span> <span class="ss">:X</span> <span class="p">[]</span> <span class="ss">:3X</span><span class="p">))</span> <span class="c1">;; X</span>
+        <span class="p">(</span><span class="nf">on</span> <span class="ss">:A</span> <span class="p">[]</span>                  <span class="c1">;; H1A</span>
+            <span class="p">(</span><span class="nf">choose</span> <span class="ss">:X</span><span class="p">))</span>
+        <span class="p">(</span><span class="nf">option</span> <span class="ss">:Y</span> <span class="p">[]</span> <span class="ss">:3Y</span><span class="p">))]</span>       <span class="c1">;; Y</span>
+   <span class="p">(</span><span class="nf">option</span> <span class="ss">:Z</span> <span class="p">[]</span> <span class="ss">:3Z</span><span class="p">))</span>              <span class="c1">;; Z</span>
+
+<span class="nv">=&gt;</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="ss">:3X</span><span class="p">]</span>
+</pre></div>
+</div><div class="figure"><h4><i>fig.7  &nbsp;-&nbsp; Choose :X Flow</i></h4><div class="img"><img height="300px" src="img/choose_flow_x.png" title="Choose :X Flow" /></div><p /></div><div><p>However in some cases, upper level options can be accessed as in this case. This can be used to set global strategies to deal with very issues that have serious consequences if it was to go ahead.    </p><p>   An example maybe a mine worker who finds a gas-leak. Because of previously conveyed instructions, he doesn't need to inform his manager and shuts down the plant immediately.</p></div><div><a name="choose-upper-level"></a><h3><i>4.4.2 &nbsp;&nbsp; Choose Upper-Level</i></h3></div><div><a name="choose-:z"></a><h4><i>e.4.8  &nbsp;-&nbsp; Choose :Z</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>                           <span class="c1">;; L2</span>
+ <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="p">(</span><span class="nf">manage</span>                     <span class="c1">;; L1</span>
+       <span class="p">(</span><span class="nf">raise</span> <span class="ss">:A</span>                  <span class="c1">;; L0</span>
+              <span class="p">(</span><span class="nf">option</span> <span class="ss">:X</span> <span class="p">[]</span> <span class="ss">:3X</span><span class="p">))</span> <span class="c1">;; X</span>
+       <span class="p">(</span><span class="nf">on</span> <span class="ss">:A</span> <span class="p">[]</span>                  <span class="c1">;; H1A</span>
+           <span class="p">(</span><span class="nf">choose</span> <span class="ss">:Z</span><span class="p">))</span>
+       <span class="p">(</span><span class="nf">option</span> <span class="ss">:Y</span> <span class="p">[]</span> <span class="ss">:3Y</span><span class="p">))]</span>       <span class="c1">;; Y</span>
+ <span class="p">(</span><span class="nf">option</span> <span class="ss">:Z</span> <span class="p">[]</span> <span class="ss">:3Z</span><span class="p">))</span>              <span class="c1">;; Z</span>
+
+<span class="nv">=&gt;</span> <span class="ss">:3Z</span>
+</pre></div>
+</div><div class="figure"><h4><i>fig.8  &nbsp;-&nbsp; Choose :Z Flow</i></h4><div class="img"><img height="300px" src="img/choose_flow_z.png" title="Choose :Z Flow" /></div><p /></div><div><a name="choose-more"></a><h3>4.5 &nbsp;&nbsp; Choose - More Strategies</h3></div><div><a name="overridding-an-option"></a><h3><i>4.5.1 &nbsp;&nbsp; Overridding An Option</i></h3></div><div><p>If there are two options with the same label,   choose will take the option specified at the highest   management level. This means that managers at higher   levels can over-ride lower level strategies.</p></div><div><a name="choose-:x1"></a><h4><i>e.4.9  &nbsp;-&nbsp; Choose :X1</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>                            <span class="c1">;; L2</span>
+ <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="p">(</span><span class="nf">manage</span>                      <span class="c1">;; L1</span>
+       <span class="p">(</span><span class="nf">raise</span> <span class="ss">:A</span>                   <span class="c1">;; L0</span>
+              <span class="p">(</span><span class="nf">option</span> <span class="ss">:X</span> <span class="p">[]</span> <span class="ss">:3X0</span><span class="p">))</span> <span class="c1">;; X0 - This is ignored</span>
+       <span class="p">(</span><span class="nf">on</span> <span class="ss">:A</span> <span class="p">[]</span>                   <span class="c1">;; H1A</span>
+         <span class="p">(</span><span class="nf">choose</span> <span class="ss">:X</span><span class="p">))</span>
+       <span class="p">(</span><span class="nf">option</span> <span class="ss">:X</span> <span class="p">[]</span> <span class="ss">:3X1</span><span class="p">))]</span>       <span class="c1">;; X1 - This is chosen</span>
+ <span class="p">(</span><span class="nf">option</span> <span class="ss">:Z</span> <span class="p">[]</span> <span class="ss">:3Z</span><span class="p">))</span>               <span class="c1">;; Z</span>
+
+<span class="nv">=&gt;</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="ss">:3X1</span><span class="p">]</span>
+</pre></div>
+</div><div class="figure"><h4><i>fig.9  &nbsp;-&nbsp; Choose :X1 Flow</i></h4><div class="img"><img height="300px" src="img/choose_flow_x1.png" title="Choose :X1 Flow" /></div><p /></div><div><a name="default-option"></a><h3><i>4.5.2 &nbsp;&nbsp; Default Option</i></h3></div><div><p>Specifying a 'default' option allows the raiser to    have autonomous control of the situation if the issue    remains unhandled.</p></div><div><a name="choose-default"></a><h4><i>e.4.10  &nbsp;-&nbsp; Choose Default</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>                            <span class="c1">;; L2</span>
+ <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="p">(</span><span class="nf">manage</span>                      <span class="c1">;; L1</span>
+       <span class="p">(</span><span class="nf">raise</span> <span class="ss">:A</span>                   <span class="c1">;; L0</span>
+              <span class="p">(</span><span class="nf">default</span> <span class="ss">:X</span><span class="p">)</span>         <span class="c1">;; D</span>
+              <span class="p">(</span><span class="nf">option</span> <span class="ss">:X</span> <span class="p">[]</span> <span class="ss">:3X</span><span class="p">))</span>  <span class="c1">;; X</span>
+       <span class="p">(</span><span class="nf">option</span> <span class="ss">:Y</span> <span class="p">[]</span> <span class="ss">:3Y</span><span class="p">))]</span>        <span class="c1">;; Y</span>
+ <span class="p">(</span><span class="nf">option</span> <span class="ss">:Z</span> <span class="p">[]</span> <span class="ss">:3Z</span><span class="p">))</span>               <span class="c1">;; Z</span>
+
+<span class="nv">=&gt;</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="ss">:3X</span><span class="p">]</span>
+</pre></div>
+</div><div class="figure"><h4><i>fig.10  &nbsp;-&nbsp; Choose Default Flow</i></h4><div class="img"><img height="300px" src="img/choose_default_x.png" title="Choose Default Flow" /></div><p /></div><div><a name="overriding-defaults"></a><h3><i>4.5.3 &nbsp;&nbsp; Overriding Defaults</i></h3></div><div><p>This is an example of higher-tier managers    overriding options</p></div><div><a name="choose-default-:x2"></a><h4><i>e.4.11  &nbsp;-&nbsp; Choose Default :X2</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>                            <span class="c1">;; L2</span>
+ <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="p">(</span><span class="nf">manage</span>                      <span class="c1">;; L1</span>
+       <span class="p">(</span><span class="nf">raise</span> <span class="ss">:A</span>                   <span class="c1">;; L0</span>
+              <span class="p">(</span><span class="nf">default</span> <span class="ss">:X</span><span class="p">)</span>         <span class="c1">;; D</span>
+              <span class="p">(</span><span class="nf">option</span> <span class="ss">:X</span> <span class="p">[]</span> <span class="ss">:3X0</span><span class="p">))</span> <span class="c1">;; X0</span>
+       <span class="p">(</span><span class="nf">option</span> <span class="ss">:X</span> <span class="p">[]</span> <span class="ss">:3X1</span><span class="p">))]</span>       <span class="c1">;; X1</span>
+  <span class="p">(</span><span class="nf">option</span> <span class="ss">:X</span> <span class="p">[]</span> <span class="ss">:3X2</span><span class="p">))</span>             <span class="c1">;; X2</span>
+
+<span class="nv">=&gt;</span> <span class="ss">:3X2</span>
+</pre></div>
+</div><div class="figure"><h4><i>fig.11  &nbsp;-&nbsp; Choose Default :X2 Flow</i></h4><div class="img"><img height="300px" src="img/choose_default_x2.png" title="Choose Default :X2 Flow" /></div><p /></div><div><a name="escalate"></a><h3>4.6 &nbsp;&nbsp; Escalate</h3></div><div><a name="simple-escalation"></a><h3><i>4.6.1 &nbsp;&nbsp; Simple Escalation</i></h3></div><div><p>When issues are escalated, more information    can be added and this then is passed on to    higher-tier managers</p></div><div><a name="escalate-:b"></a><h4><i>e.4.12  &nbsp;-&nbsp; Escalate :B</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>                            <span class="c1">;; L2</span>
+ <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="p">(</span><span class="nf">manage</span>                      <span class="c1">;; L1</span>
+       <span class="p">(</span><span class="nf">raise</span> <span class="ss">:A</span><span class="p">)</span>                  <span class="c1">;; L0</span>
+       <span class="p">(</span><span class="nf">on</span> <span class="ss">:A</span> <span class="p">[]</span>                   <span class="c1">;; H1A</span>
+          <span class="p">(</span><span class="nf">escalate</span> <span class="ss">:B</span><span class="p">)))]</span>
+ <span class="p">(</span><span class="nf">on</span> <span class="ss">:B</span> <span class="p">[]</span>                         <span class="c1">;; H2B</span>
+     <span class="p">(</span><span class="nf">continue</span> <span class="ss">:3B</span><span class="p">)))</span>
+
+<span class="nv">=&gt;</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="ss">:3B</span><span class="p">]</span>
+</pre></div>
+</div><div class="figure"><h4><i>fig.12  &nbsp;-&nbsp; Escalate :B Flow</i></h4><div class="img"><img height="300px" src="img/escalate_norm.png" title="Escalate :B Flow" /></div><p /></div><div><a name="escalation-with-options"></a><h3><i>4.6.2 &nbsp;&nbsp; Escalation with Options</i></h3></div><div><p>More options can be added to escalate. When   these options are chosen, it will continue at the   point in which the issue was raised.</p></div><div><a name="escalate-:b,-choose-:x"></a><h4><i>e.4.13  &nbsp;-&nbsp; Escalate :B, Choose :X</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>                            <span class="c1">;; L2</span>
+ <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="p">(</span><span class="nf">manage</span>                      <span class="c1">;; L1</span>
+       <span class="p">(</span><span class="nf">raise</span> <span class="ss">:A</span><span class="p">)</span>                  <span class="c1">;; L0</span>
+       <span class="p">(</span><span class="nf">on</span> <span class="ss">:A</span> <span class="p">[]</span>                   <span class="c1">;; H1A</span>
+           <span class="p">(</span><span class="nf">escalate</span>
+            <span class="ss">:B</span>
+            <span class="p">(</span><span class="nf">option</span> <span class="ss">:X</span> <span class="p">[]</span> <span class="ss">:3X</span><span class="p">))))]</span> <span class="c1">;; X</span>
+  <span class="p">(</span><span class="nf">on</span> <span class="ss">:B</span> <span class="p">[]</span>                        <span class="c1">;; H2B</span>
+      <span class="p">(</span><span class="nf">choose</span> <span class="ss">:X</span><span class="p">)))</span>
+
+<span class="nv">=&gt;</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="ss">:3X</span><span class="p">]</span>
+</pre></div>
+</div><div class="figure"><h4><i>fig.13  &nbsp;-&nbsp; Escalate :B, Choose :X Flow</i></h4><div class="img"><img height="300px" src="img/escalate_norm.png" title="Escalate :B, Choose :X Flow" /></div><p /></div><div><a name="fail"></a><h3>4.7 &nbsp;&nbsp; Fail</h3></div><div><p>Fail forces a failure. It is used where there is already a default    option and the manager really needs it to fail.</p></div><div><a name="force-failure"></a><h4><i>e.4.14  &nbsp;-&nbsp; Force Failure</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>                          <span class="c1">;; L2</span>
+ <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="p">(</span><span class="nf">manage</span>                    <span class="c1">;; L1</span>
+       <span class="p">(</span><span class="nf">raise</span> <span class="ss">:A</span>                 <span class="c1">;; L0</span>
+              <span class="p">(</span><span class="nf">option</span> <span class="ss">:X</span> <span class="p">[]</span> <span class="ss">:X</span><span class="p">)</span>
+              <span class="p">(</span><span class="nf">default</span> <span class="ss">:X</span><span class="p">))</span>
+       <span class="p">(</span><span class="nf">on</span> <span class="ss">:A</span> <span class="p">[]</span>                 <span class="c1">;; H1A</span>
+           <span class="p">(</span><span class="nf">fail</span> <span class="ss">:B</span><span class="p">)))])</span>
+
+<span class="nv">=&gt;</span> <span class="p">(</span><span class="nf">raises-issue</span> <span class="p">{</span><span class="ss">:A</span> <span class="nv">true</span> <span class="ss">:B</span> <span class="nv">true</span><span class="p">})</span>
+</pre></div>
+</div><div class="figure"><h4><i>fig.14  &nbsp;-&nbsp; Force Fail Flow</i></h4><div class="img"><img height="300px" src="img/fail.png" title="Force Fail Flow" /></div><p /></div><div><a name="default"></a><h3>4.8 &nbsp;&nbsp; Default</h3></div><div><p>Default short-circuits higher managers so that    the issue is resolved internally.</p></div><div><h4><i>e.4.15</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>                          <span class="c1">;; L2</span>
+ <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="p">(</span><span class="nf">manage</span>                    <span class="c1">;; L1</span>
+       <span class="p">(</span><span class="nf">raise</span> <span class="ss">:A</span>                 <span class="c1">;; L0</span>
+              <span class="p">(</span><span class="nf">option</span> <span class="ss">:X</span> <span class="p">[]</span> <span class="ss">:X</span><span class="p">)</span>
+              <span class="p">(</span><span class="nf">default</span> <span class="ss">:X</span><span class="p">))</span>
+       <span class="p">(</span><span class="nf">on</span> <span class="ss">:A</span> <span class="p">[]</span>                  <span class="c1">;; H1A</span>
+           <span class="p">(</span><span class="nf">default</span><span class="p">)))]</span>
+ <span class="p">(</span><span class="nf">on</span> <span class="ss">:A</span> <span class="p">[]</span> <span class="p">(</span><span class="nf">continue</span> <span class="mi">3</span><span class="p">)))</span>
+
+<span class="nv">=&gt;</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="ss">:X</span><span class="p">]</span>
+</pre></div>
+</div><div><a name="escalation-with-defaults"></a><h3><i>4.8.1 &nbsp;&nbsp; Escalation with Defaults</i></h3></div><div><p>This is <code>default</code> in combination with <code>escalate</code> to do some very complex jumping around.</p></div><div><a name="escalate-:b,-choose-default"></a><h4><i>e.4.16  &nbsp;-&nbsp; Escalate :B, Choose Default</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span>                            <span class="c1">;; L2</span>
+ <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="p">(</span><span class="nf">manage</span>                      <span class="c1">;; L1</span>
+       <span class="p">(</span><span class="nf">raise</span> <span class="ss">:A</span>                   <span class="c1">;; L0</span>
+         <span class="p">(</span><span class="nf">option</span> <span class="ss">:X</span> <span class="p">[]</span> <span class="ss">:X</span><span class="p">))</span>        <span class="c1">;; X</span>
+       <span class="p">(</span><span class="nf">on</span> <span class="ss">:A</span> <span class="p">[]</span>                   <span class="c1">;; H1A</span>
+           <span class="p">(</span><span class="nf">escalate</span>
+            <span class="ss">:B</span>
+            <span class="p">(</span><span class="nf">default</span> <span class="ss">:X</span><span class="p">))))]</span>       <span class="c1">;; D1</span>
+  <span class="p">(</span><span class="nf">on</span> <span class="ss">:B</span> <span class="p">[]</span>                        <span class="c1">;; H2B</span>
+      <span class="p">(</span><span class="nf">default</span><span class="p">)))</span>
+
+<span class="nv">=&gt;</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="ss">:X</span><span class="p">]</span>
+</pre></div>
+</div><div class="figure"><h4><i>fig.15  &nbsp;-&nbsp; Escalate :B, Choose Default Flow</i></h4><div class="img"><img height="300px" src="img/escalate_default_x2.png" title="Escalate :B, Choose Default Flow" /></div><p /></div><div><a name="on-form"></a><h3>4.9 &nbsp;&nbsp; Branch Using On</h3></div><div><p>Ribol strategies can also be combined within the <code>on</code> handler. In the following example, it can be seen that the <code>on :error</code> handler supports both <code>escalate</code> and <code>continue</code> strategies.</p></div><div><h4><i>e.4.17</i></h4><div class="highlight"><pre><span class="p">(</span><span class="nf">manage</span> <span class="p">(</span><span class="nf">manage</span>
+         <span class="p">(</span><span class="nf">mapv</span> <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">n</span><span class="p">]</span>
+                 <span class="p">(</span><span class="nf">raise</span> <span class="p">[</span><span class="ss">:error</span> <span class="p">{</span><span class="ss">:data</span> <span class="nv">n</span><span class="p">}]))</span>
+               <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span> <span class="mi">6</span> <span class="mi">7</span> <span class="mi">8</span><span class="p">])</span>
+         <span class="p">(</span><span class="nf">on</span> <span class="ss">:error</span> <span class="p">[</span><span class="nv">data</span><span class="p">]</span>
+             <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">&gt; </span><span class="nv">data</span> <span class="mi">5</span><span class="p">)</span>
+               <span class="p">(</span><span class="nf">escalate</span> <span class="ss">:too-big</span><span class="p">)</span>
+               <span class="p">(</span><span class="nf">continue</span> <span class="nv">data</span><span class="p">))))</span>
+        <span class="p">(</span><span class="nf">on</span> <span class="ss">:too-big</span> <span class="p">[</span><span class="nv">data</span><span class="p">]</span>
+            <span class="p">(</span><span class="nf">continue</span> <span class="p">(</span><span class="nb">- </span><span class="nv">data</span><span class="p">))))</span>
+
+<span class="nv">=&gt;</span> <span class="p">[</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span> <span class="mi">-6</span> <span class="mi">-7</span> <span class="mi">-8</span><span class="p">]</span>
+</pre></div>
+</div><div><p>Using branching strategies with <code>on</code> much more complex interactions can be constructed beyond the scope of this document.</p></div><div><a name="end-notes"></a><h2><b>5 &nbsp;&nbsp; End Notes</b></h2></div><div><p>For any feedback, requests and comments, please feel free to lodge an issue on github or contact me directly.</p><p>Chris.</p></div></section></body><script type="text/javascript">var metas = document.getElementsByTagName('meta');
+var i;
+if (navigator.userAgent.match(/iPhone/i)) {
+  for (i=0; i<metas.length; i++) {
+    if (metas[i].name == "viewport") {
+      metas[i].content = "width=device-width, minimum-scale=1.0, maximum-scale=1.0";
+    }
+  }
+  document.addEventListener("gesturestart", gestureStart, false);
+}
+function gestureStart() {
+  for (i=0; i<metas.length; i++) {
+    if (metas[i].name == "viewport") {
+      metas[i].content = "width=device-width, minimum-scale=0.25, maximum-scale=1.6";
+    }
+  }
+}</script></html>
