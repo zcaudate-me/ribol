@@ -7,7 +7,7 @@
 "In `project.clj`, add to dependencies:"
 
 [[{:numbered false}]]
-(comment  [im.chit/ribol "0.2.1"])
+(comment  [im.chit/ribol "0.2.2"])
 
 "All functionality is found contained in `ribol.core`"
 
