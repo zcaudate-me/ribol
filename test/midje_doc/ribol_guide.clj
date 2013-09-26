@@ -133,8 +133,7 @@ Using these six different different issue resolution directives, the programmer 
 "Please note that the `raises-issue` macro is only working with `midje`. in order to work with the `payload` macro:"
 
 [[{:title "`payload` helper definition" :tag "payload-macro"}]]
-(fact
-  (defmacro payload [& body]
+(defmacro payload [& body]
     `(try ~@body
           (throw (Throwable.))
           (catch clojure.lang.ExceptionInfo e#
@@ -142,6 +141,7 @@ Using these six different different issue resolution directives, the programmer 
           (catch Throwable t#
             (throw (Exception. "No Issue raised")))))
 
+(facts
   (payload (raise :error)) => {:error true})
 
 
@@ -459,7 +459,7 @@ A function `half-int` is defined ([e.{{half-int-definition}}](#half-int-definiti
        (choose :use-nil))
      (option :use-nil [] nil))
 
-   => nil  ;; notice that the :use-nil is overridden
+    => nil  ;; notice that the :use-nil is overridden
 )
 
 [[:section {:title "raise-on"}]]

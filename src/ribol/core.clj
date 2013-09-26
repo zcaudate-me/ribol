@@ -172,8 +172,12 @@
         :arglists '[label args & body]}
   option)
 
+(def #^{:doc "Special form to be used inside 'manage' blocks"
+        :arglists '[label args & body]}
+  finally)
+
 (def sp-forms {:raise #{#'option #'default}
-               :manage #{#'on #'option}})
+               :manage #{#'on #'option #'finally}})
 
 (defn- is-special-form [k form]
   (and (list? form)
@@ -240,14 +244,6 @@
 
           :else (throw ex))))
 
-(defmacro manage-bind [manager optmap & body]
-  `(binding [*managers* (cons ~manager *managers*)
-             *optmap* (merge ~optmap *optmap*)]
-    (try
-      ~@body
-      (catch clojure.lang.ExceptionInfo ~'ex
-        (manage-signal ~manager ~'ex)))))
-
 (defn- parse-on [chk params body]
   {:checker chk
    :fn `(fn [{:keys ~params}] ~@body)})
@@ -256,6 +252,11 @@
   (vec (for [[type chk params & body] forms
              :when (= (resolve type) #'on)]
          (parse-on chk params body))))
+
+(defn- parse-finally-forms [forms]
+  (for [[type & body :as fform] forms
+        :when (= (resolve type) #'finally)]
+    (cons 'finally body)))
 
 (defmacro manage
   "This creats the 'manage' dynamic scope form. The body will be executed
@@ -267,9 +268,16 @@
         id (keyword (gensym))
         options  (parse-option-forms sp-forms)
         handlers (parse-handler-forms sp-forms)
+        finally-forms (parse-finally-forms sp-forms)
         optmap (zipmap (keys options) (repeat id))
         manager {:id id :handlers handlers :options options}]
-    `(manage-bind ~manager ~optmap ~@body-forms)))
+    `(binding [*managers* (cons ~manager *managers*)
+               *optmap* (merge ~optmap *optmap*)]
+       (try
+         ~@body-forms
+         (catch clojure.lang.ExceptionInfo ~'ex
+           (manage-signal ~manager ~'ex))
+         ~@finally-forms))))
 
 (defn make-catch-forms [exceptions content sp-forms]
   (map (fn [ex]
