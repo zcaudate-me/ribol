@@ -7,7 +7,7 @@
 "In `project.clj`, add to dependencies:"
 
 [[{:numbered false}]]
-(comment  [im.chit/ribol "0.2.2"])
+(comment  [im.chit/ribol "0.2.3"])
 
 "All functionality is found contained in `ribol.core`"
 
@@ -462,7 +462,10 @@ A function `half-int` is defined ([e.{{half-int-definition}}](#half-int-definiti
     => nil  ;; notice that the :use-nil is overridden
 )
 
+
 [[:section {:title "raise-on"}]]
+
+"`raise-on` hooks ribol into the java exception system. It supports the `finally` clause"
 (facts
   (manage
    (raise-on [ArithmeticException :divide-by-zero]
@@ -479,9 +482,19 @@ A function `half-int` is defined ([e.{{half-int-definition}}](#half-int-definiti
              (/ 1 0))
    (on :divide-by-zero []
        (continue :infinity)))
-  => :infinity)
+  => :infinity
+
+  (raise-on [[NumberFormatException ArithmeticException] :divide-by-zero
+             Throwable :throwing]
+            (throw (Throwable. "oeuoeu"))
+            (finally (println 1)))
+  => (raises-issue {:throwing true}) ;; prints 1
+
+  )
 
 [[:section {:title "raise-on-all"}]]
+
+"`raise-on-all` provides an issue whenever it encouters an exception. It also supports the `finally` clause"
 (facts
   (manage
    (raise-on-all :error (/ 4 2))
@@ -496,10 +509,18 @@ A function `half-int` is defined ([e.{{half-int-definition}}](#half-int-definiti
   => :none)
 
 [[:section {:title "anticipate"}]]
+
+"`anticipate` is another way to perform try and catch. It also supports the `finally` clause"
+
 (facts
   (anticipate [ArithmeticException :infinity]
               (/ 1 0))
-  => :infinity)
+  => :infinity
+
+  (anticipate [ArithmeticException :infinity
+               NullPointerException :null]
+              (/ nil nil))
+  => :null)
 
 
 [[:file {:src "test/midje_doc/strategies.clj"}]]

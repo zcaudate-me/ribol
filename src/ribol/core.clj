@@ -176,7 +176,9 @@
         :arglists '[label args & body]}
   finally)
 
-(def sp-forms {:raise #{#'option #'default}
+(def sp-forms {:anticipate #{#'finally}
+               :raise #{#'option #'default}
+               :raise-on #{#'option #'default #'finally}
                :manage #{#'on #'option #'finally}})
 
 (defn- is-special-form [k form]
@@ -279,27 +281,36 @@
            (manage-signal ~manager ~'ex))
          ~@finally-forms))))
 
-(defn make-catch-forms [exceptions content sp-forms]
+(defn- make-catch-forms [exceptions sp-forms]
   (map (fn [ex]
-         `(catch ~ex t#
-            (raise ~content ~@sp-forms)))
+         `(catch ~(:type ex) t#
+            (raise ~(:content ex) ~@sp-forms)))
        exceptions))
+
+(defn- make-catch-elem [[ex content]]
+  (cond (symbol? ex) [{:type ex :content content}]
+        (vector? ex) (map (fn [t] {:type t :content content})
+                                  ex)
+        :else (error "RAISE_ON: " ex
+                     " can only be a classname or vector of classnames")))
+
+(defn- make-catch-list [bindings]
+  (mapcat make-catch-elem (partition 2 bindings)))
 
 (defmacro raise-on
   "Raises an issue with options and defaults when an exception is encountered
   when the body has been evaluated"
-  [[exceptions content] form & forms]
-  (let [exceptions
-        (cond (symbol? exceptions) [exceptions]
-              (vector? exceptions) exceptions
-              :else (error "RAISE_ON: " exceptions
-                           " can only be a classname or vector of classnames"))
-        sp-fn #(is-special-form :raise %)
+  [bindings form & forms]
+  (let [exceptions (make-catch-list bindings)
+        raise-on-fn #(is-special-form :raise-on %)
+        raise-fn    #(is-special-form :raise %)
         forms (cons form forms)
-        body-forms (filter (complement sp-fn) forms)
-        sp-forms (filter sp-fn forms)
-        catch-forms (make-catch-forms exceptions content sp-forms)]
-    `(try ~@body-forms ~@catch-forms)))
+        body-forms (filter (complement raise-on-fn) forms)
+        raise-on-forms (filter raise-on-fn forms)
+        finally-forms (filter (complement raise-fn) raise-on-forms)
+        raise-forms (filter raise-fn raise-on-forms)
+        catch-forms (make-catch-forms exceptions raise-forms)]
+    `(try ~@body-forms ~@catch-forms ~@finally-forms)))
 
 (defmacro raise-on-all [content form & forms]
   "Raises an issue with options and defaults when any exception is encountered
@@ -323,6 +334,10 @@
 (defmacro anticipate [exvec & body]
   "Anticipates exceptions and decides what to do with them"
   (let [pairs (partition 2 exvec)
+        anticipate-fn    #(is-special-form :anticipate %)
+        body-forms (filter (complement anticipate-fn) body)
+        finally-forms (filter anticipate-fn body)
         catches (mapcat parse-anticipate-pair pairs)]
-    `(try ~@body
-          ~@catches)))
+    `(try ~@body-forms
+          ~@catches
+          ~@finally-forms)))

@@ -6,7 +6,7 @@
 
 In project.clj, add to dependencies:
 
-     [im.chit/ribol "0.2.2"]
+     [im.chit/ribol "0.2.3"]
      
 
 ### Webpage
