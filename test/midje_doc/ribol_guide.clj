@@ -310,7 +310,7 @@ Using these six different different issue resolution directives, the programmer 
 
 [[:chapter {:title "API Reference"}]]
 
-[[:section {:title "raise"}]]
+[[:section {:title "raise" :tag "api-raise"}]]
 
 "The keyword `raise` is used to raise an 'issue'. At the simplest, when there is no `manage` blocks, `raise` just throws a `clojure.lang.ExceptionInfo` object"
 
@@ -518,7 +518,7 @@ Using these six different different issue resolution directives, the programmer 
 - default
 - escalate"
 
-[[:subsection {:title "continue"}]]
+[[:subsection {:title "continue" :tag "api-continue"}]]
 
  "The `continue` special form is used to continue the operation from the point that the `issue` was raised ([e.{{continue-using-nan}}](#continue-using-nan)). It must be pointed out that this is impossible to do using the `try/catch` paradigm because the all the information from the stack will be lost.
 
@@ -548,7 +548,7 @@ Using these six different different issue resolution directives, the programmer 
   )
 
 
-[[:subsection {:title "fail"}]]
+[[:subsection {:title "fail" :tag "api-fail"}]]
 
 "The `fail` special form will forcibly cause an exception to be thrown. It is used when there is no need to advise managers of situation. More data can be added to the failure ([e.{{fail-example}}](#fail-example))."
 
@@ -561,7 +561,7 @@ Using these six different different issue resolution directives, the programmer 
   => (raises-issue {:value 1 :odd-number true :unhandled true :error true})
   )
 
-[[:subsection {:title "choose"}]]
+[[:subsection {:title "choose" :tag "api-choose"}]]
 
 "The `choose` special form is used to jump to a `option`. A new function `half-int-b` ([e.{{half-int-b-definition}}](#half-int-b-definition)) is defined giving options to jump to within the `raise` form."
 [[{:numbered false}]]
@@ -604,7 +604,7 @@ Using these six different different issue resolution directives, the programmer 
   => nil)
 
 
-[[:subsection {:title "default"}]]
+[[:subsection {:title "default" :tag "api-default"}]]
 
 
 " The `default` special short-circuits the raise process and skips managers further up to use an issue's default option. A function is defined and is usage is shown how the `default` form behaves. "
@@ -650,7 +650,7 @@ Using these six different different issue resolution directives, the programmer 
        (default)))
   => [])
 
-[[:subsection {:title "escalate"}]]
+[[:subsection {:title "escalate" :tag "api-escalate"}]]
 
 "The `escalate` special form is used to add additional information to the issue and raised to higher managers. In the following example, if a `3` or a `5` is seen, then the flag `:three-or-five` is added to the issue and the `:odd-number` flag is set false."
 
