@@ -168,11 +168,11 @@
      `{::type :fail ::contents ~contents}))
 
 (def #^{:doc "Special form to be used inside 'manage' 'raise' or 'escalate' blocks. It
-  provides a label and a function body to be set up within a managed scope"
+  provides a label and a function body to be set up within a managed scope."
         :arglists '[label args & body]}
   option)
 
-(def #^{:doc "Special form to be used inside 'manage' blocks"
+(def #^{:doc "Special form to be used inside 'manange', 'raise-on', 'raise-on-all' and 'anticipate' blocks."
         :arglists '[label args & body]}
   finally)
 
@@ -282,10 +282,13 @@
          ~@finally-forms))))
 
 (defn- make-catch-forms [exceptions sp-forms]
-  (map (fn [ex]
-         `(catch ~(:type ex) t#
-            (raise ~(:content ex) ~@sp-forms)))
-       exceptions))
+  (cons
+   `(catch clojure.lang.ExceptionInfo e#
+      (raise (ex-data e#) ~@sp-forms))
+   (map (fn [ex]
+          `(catch ~(:type ex) t#
+             (raise ~(:content ex) ~@sp-forms)))
+        exceptions)))
 
 (defn- make-catch-elem [[ex content]]
   (cond (symbol? ex) [{:type ex :content content}]
