@@ -284,10 +284,10 @@
 (defn- make-catch-forms [exceptions sp-forms]
   (cons
    `(catch clojure.lang.ExceptionInfo e#
-      (raise (ex-data e#) ~@sp-forms))
+      (raise [(ex-data e#) {:origin e#}] ~@sp-forms))
    (map (fn [ex]
           `(catch ~(:type ex) t#
-             (raise ~(:content ex) ~@sp-forms)))
+             (raise [~(:content ex) {:origin t#}] ~@sp-forms)))
         exceptions)))
 
 (defn- make-catch-elem [[ex content]]

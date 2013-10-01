@@ -6,7 +6,7 @@
 
 In project.clj, add to dependencies:
 
-     [im.chit/ribol "0.3.1"]
+     [im.chit/ribol "0.3.2"]
 
 ### Documentation
 
@@ -27,6 +27,15 @@ To generate this document for offline use:
    > lein midje-doc
 
 The output will be generated in `<root>/index.html`
+
+
+## Changes:
+
+#### v0.3.2
+- supports an additional :origin key for keeping the original stacktrace information intact in `raise-on` and `raise-on-all`
+
+#### v0.3.1
+- supports `finally` clauses in `manage`, `anticipate`, `raise-on` and `raise-on-all`
 
 
 ## License
