@@ -21,7 +21,7 @@ For those that wish to know more about conditional restarts, a comparison of dif
 "In `project.clj`, add to dependencies:"
 
 [[{:numbered false}]]
-(comment  [im.chit/ribol "0.3.2"])
+(comment  [im.chit/ribol "0.3.3"])
 
 "All functionality is found contained in `ribol.core`"
 

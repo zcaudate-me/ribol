@@ -6,7 +6,7 @@
 
 In project.clj, add to dependencies:
 
-     [im.chit/ribol "0.3.2"]
+     [im.chit/ribol "0.3.3"]
 
 ### Documentation
 
