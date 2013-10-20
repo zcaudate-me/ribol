@@ -147,7 +147,7 @@
 
 [[:subsection {:title "checkers"}]]
 
-"Within the `manage` form, issue handlers are specified with `on`. The form requires a check. "
+"Within the `manage` form, issue handlers are specified with `on`. The form requires a check, which if returns true will be  "
 
 [[{:numbered false}]]
 (fact
@@ -177,6 +177,48 @@
        "odd-number-exception"))
   => "odd-number-exception")
 
+"A set will check if any elements are true"
+
+[[{:numbered false}]]
+(fact
+  (manage
+   (mapv half-int [1 2 3 4])
+   (on #{:odd-number} []
+       "odd-number-exception"))
+  => "odd-number-exception")
+
+"A vector will check if all elements are true "
+
+[[{:numbered false}]]
+(fact
+  (manage
+   (mapv half-int [1 2 3 4])
+   (on [:odd-number] []
+       "odd-number-exception"))
+  => "odd-number-exception")
+
+
+"An underscore will match anything"
+
+[[{:numbered false}]]
+(fact
+  (manage
+   (mapv half-int [1 2 3 4])
+   (on _ []
+       "odd-number-exception"))
+  => "odd-number-exception")
+
+"`on-any` can also be used instead of `on _`"
+
+[[{:numbered false}]]
+(fact
+  (manage
+   (mapv half-int [1 2 3 4])
+   (on-any []
+       "odd-number-exception"))
+  => "odd-number-exception")
+
+
 [[:subsection {:title "bindings"}]]
 
 "Bindings within the `on` handler allow values in the issue payload to be accessed:"
@@ -185,13 +227,46 @@
 (fact
   (manage
    (mapv half-int [1 2 3 4])
+   (on :odd-number e
+       (str "odd-number: " (:odd-number e) ", value: " (:value e))))
+  => "odd-number: true, value: 1")
+
+"Bindings can be a vector"
+  
+[[{:numbered false}]]
+(fact
+  (manage
+   (mapv half-int [1 2 3 4])
    (on :odd-number [odd-number value]
        (str "odd-number: " odd-number ", value: " value)))
   => "odd-number: true, value: 1")
 
-[[:subsection {:title "finally"}]]
+"Bindings can also be a hashmap"
 
-"The special form `finally` is supported in the `manage` blocks, just as in `try` blocks so that resources can be cleaned up."
+[[{:numbered false}]]
+(fact
+  (manage
+   (mapv half-int [1 2 3 4])
+   (on :odd-number {odd? :odd-number v :value}
+       (str "odd-number: " odd? ", value: " v)))
+  => "odd-number: true, value: 1")
+
+[[:subsection {:title "catch and finally"}]]
+
+"The special forms `catch` and `finally` are also supported in the `manage` blocks for exception handling just as they are in `try` blocks."
+
+[[{:numbered false}]]
+(fact
+  (manage
+   (throw (Exception. "Hello"))
+   (catch Exception e
+     "odd-number-exception")
+   (finally
+     (println "Hello")))
+  => "odd-number-exception" ;; Also prints "Hello"
+)
+
+"They can be mixed and matched with `on` forms"
 
 [[{:numbered false}]]
 (fact

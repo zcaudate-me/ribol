@@ -31,6 +31,11 @@ The output will be generated in `<root>/index.html`
 
 ## Changes:
 
+#### v0.3.3
+- Allow `catch` clauses in `manage`, `anticipate`, `raise-on` and `raise-on-all`
+- Supports more bindings for issues (hashmap, symbol)
+- Checkers support sets and underscores
+
 #### v0.3.2
 - supports an additional :origin key for keeping the original stacktrace information intact in `raise-on` and `raise-on-all`
 

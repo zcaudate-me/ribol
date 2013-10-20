@@ -9,7 +9,7 @@
      `(throw (Exception. (str ~e ~@more)))))
 
 (defn- hash-map?
- [x] (instance? clojure.lang.IPersistentMap x))
+ [x] (instance? clojure.lang.APersistentMap x))
 
 (defn- hash-set?
  [x] (instance? clojure.lang.PersistentHashSet x))
@@ -39,9 +39,13 @@
         (vector? chk)
         (every? #(check-contents contents %) chk)
 
-        (or (fn? chk) (keyword? chk) (hash-set? chk))
+        (or (fn? chk) (keyword? chk))
         (chk contents)
 
+        (hash-set? chk)
+        (some #(check-contents contents %) chk)
+
+        (= '_ chk) true
         :else (error "CHECK_CONTENTS: " chk " cannot be founde")))
 
 (defn create-issue
@@ -153,6 +157,8 @@
                     [checker params & body])}
   on)
 
+(def on-any)
+
 (defmacro continue [& body]
   `{::type :continue ::value (do ~@body)})
 
@@ -174,17 +180,25 @@
 
 (def #^{:doc "Special form to be used inside 'manange', 'raise-on', 'raise-on-all' and 'anticipate' blocks."
         :arglists '[label args & body]}
+  catch)
+
+(def #^{:doc "Special form to be used inside 'manange', 'raise-on', 'raise-on-all' and 'anticipate' blocks."
+        :arglists '[label args & body]}
   finally)
 
-(def sp-forms {:anticipate #{#'finally}
-               :raise #{#'option #'default}
-               :raise-on #{#'option #'default #'finally}
-               :manage #{#'on #'option #'finally}})
+(def sp-forms {:anticipate #{#'catch #'finally}
+               :raise #{#'option #'default #'catch #'finally}
+               :raise-on #{#'option #'default #'catch #'finally}
+               :manage #{#'on #'on-any #'option}})
 
-(defn- is-special-form [k form]
-  (and (list? form)
-       (symbol? (first form))
-       (contains? (sp-forms k) (resolve (first form)))))
+(defn- is-special-form
+  ([k form]
+     (and (list? form)
+          (symbol? (first form))
+          (contains? (sp-forms k) (resolve (first form)))))
+  ([k form syms]
+     (if (list? form)
+       (or (get syms (first form)) (is-special-form k form)))))
 
 (defn- parse-option-forms [forms]
   (into {}
@@ -247,39 +261,54 @@
           :else (throw ex))))
 
 (defn- parse-on [chk params body]
-  {:checker chk
-   :fn `(fn [{:keys ~params}] ~@body)})
+  (let [bind (cond (vector? params)   [{:keys params}]
+                   (hash-map? params) [params]
+                   (symbol? params)    [params]
+                   :else (error "params " params " should be a vector hashmap or symbol"))]
 
-(defn- parse-handler-forms [forms]
+    {:checker chk
+     :fn `(fn ~bind ~@body)}))
+
+(defn- parse-on-handler-forms [forms]
   (vec (for [[type chk params & body] forms
              :when (= (resolve type) #'on)]
-         (parse-on chk params body))))
+         (let [chk (if (= chk '_) (quote '_) chk)]
+           (parse-on chk params body)))))
 
-(defn- parse-finally-forms [forms]
+(defn- parse-on-any-handler-forms [forms]
+  (vec (for [[type params & body] forms
+             :when (= (resolve type) #'on-any)]
+         (parse-on (quote '_)  params body))))
+
+(defn- parse-try-forms [forms]
   (for [[type & body :as fform] forms
-        :when (= (resolve type) #'finally)]
-    (cons 'finally body)))
+        :when (or (#{'finally 'catch} type)
+                  (#{#'finally #'catch} (resolve type)))]
+    fform))
 
 (defmacro manage
   "This creats the 'manage' dynamic scope form. The body will be executed
   in a dynamic context that allows handling of issues with 'on' and 'option' forms."
   [& forms]
-  (let [sp-fn #(is-special-form :manage %)
+  (let [sp-fn #(is-special-form :manage % #{'finally 'catch})
         body-forms (vec (filter (complement sp-fn) forms))
         sp-forms (filter sp-fn forms)
         id (keyword (gensym))
         options  (parse-option-forms sp-forms)
-        handlers (parse-handler-forms sp-forms)
-        finally-forms (parse-finally-forms sp-forms)
+        on-handlers (parse-on-handler-forms sp-forms)
+        on-any-handlers (parse-on-any-handler-forms sp-forms)
+        try-forms (parse-try-forms sp-forms)
         optmap (zipmap (keys options) (repeat id))
-        manager {:id id :handlers handlers :options options}]
+        manager {:id id
+                 :handlers (vec (concat on-handlers on-any-handlers))
+                 :options options}]
     `(binding [*managers* (cons ~manager *managers*)
                *optmap* (merge ~optmap *optmap*)]
        (try
          ~@body-forms
          (catch clojure.lang.ExceptionInfo ~'ex
            (manage-signal ~manager ~'ex))
-         ~@finally-forms))))
+         ~@try-forms))))
 
 (defn- make-catch-forms [exceptions sp-forms]
   (cons
@@ -305,15 +334,15 @@
   when the body has been evaluated"
   [bindings form & forms]
   (let [exceptions (make-catch-list bindings)
-        raise-on-fn #(is-special-form :raise-on %)
-        raise-fn    #(is-special-form :raise %)
+        raise-on-fn #(is-special-form :raise-on % #{'catch 'finally})
+        raise-fn    #(is-special-form :raise % #{'catch 'finally})
         forms (cons form forms)
         body-forms (filter (complement raise-on-fn) forms)
         raise-on-forms (filter raise-on-fn forms)
-        finally-forms (filter (complement raise-fn) raise-on-forms)
+        try-forms (filter (complement raise-fn) raise-on-forms)
         raise-forms (filter raise-fn raise-on-forms)
         catch-forms (make-catch-forms exceptions raise-forms)]
-    `(try ~@body-forms ~@catch-forms ~@finally-forms)))
+    `(try ~@body-forms ~@catch-forms ~@try-forms)))
 
 (defmacro raise-on-all [content form & forms]
   "Raises an issue with options and defaults when any exception is encountered
@@ -337,10 +366,10 @@
 (defmacro anticipate [exvec & body]
   "Anticipates exceptions and decides what to do with them"
   (let [pairs (partition 2 exvec)
-        anticipate-fn    #(is-special-form :anticipate %)
+        anticipate-fn    #(is-special-form :anticipate % #{'catch 'finally})
         body-forms (filter (complement anticipate-fn) body)
-        finally-forms (filter anticipate-fn body)
+        try-forms (filter anticipate-fn body)
         catches (mapcat parse-anticipate-pair pairs)]
     `(try ~@body-forms
           ~@catches
-          ~@finally-forms)))
+          ~@try-forms)))

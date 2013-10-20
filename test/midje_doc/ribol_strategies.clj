@@ -243,8 +243,7 @@
         (choose :X)))
   => [1 2 :3X]
 
-  [[:image {:src "img/escalate_options.png" :height "300px" :title "Escalate :B, Choose :X Flow"}]]
-    )
+  [[:image {:src "img/escalate_options.png" :height "300px" :title "Escalate :B, Choose :X Flow"}]])
 
 
 [[:section {:title "Fail"}]]

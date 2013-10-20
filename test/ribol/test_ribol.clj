@@ -30,6 +30,29 @@
                         :flag2 true
                         :data 10})))
 
+(fact "manage can work with "
+  (manage 3)
+
+  (manage (/ 0 0)
+          (catch ArithmeticException e 1))
+  => 1
+
+  (with-out-str
+    (manage (/ 0 0)
+            (catch ArithmeticException e 1)
+            (finally (print "Hello"))))
+  => "Hello"
+
+  (manage
+   (raise :error)
+   (on #{:error1 :error} [] 1))
+  => 1
+
+  (manage
+   (raise :error)
+   (on-any [] 1))
+  => 1)
+
 (defn half-int-a [n]
   (if (= 0 (mod n 2))
     (quot n 2)
@@ -53,6 +76,13 @@
   (map half-int-a [1 2 3 4])
   => (throws (has-data {:odd-number true
                            :value 1}))
+
+  (manage
+   (raise :odd-number)
+   (on :odd-number [] "odd-number-exception")
+   (finally
+     (println "Hello")))
+  => "odd-number-exception"
 
   (manage
    (mapv half-int-a [1 2 3 4])
@@ -91,7 +121,6 @@
          (option :return-nil [] nil)
          (default :return-nil))
   => nil
-
 
   ;; If the default option is not there, it will throw.
   (raise :error
