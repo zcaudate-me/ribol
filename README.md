@@ -12,7 +12,7 @@ In project.clj, add to dependencies:
 
 See main site at:
 
-http://z.caudate.me/ribol/
+http://docs.caudate.me/ribol/
 
 To generate this document for offline use: 
 
