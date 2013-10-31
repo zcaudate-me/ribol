@@ -18,10 +18,9 @@ For those that wish to know more about conditional restarts, a comparison of dif
 
 [[:section {:title "Installation"}]]
 
-"In `project.clj`, add to dependencies:"
+"Add to `project.clj` dependencies (use double quotes): 
 
-[[{:numbered false}]]
-(comment  [im.chit/ribol "0.3.3"])
+    [im.chit/ribol '{{PROJECT.version}}']"
 
 "All functionality is found contained in `ribol.core`"
 
