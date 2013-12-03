@@ -11,6 +11,8 @@ pom.xml.asc
 .lein-failures
 .lein-plugins
 .lein-repl-history
+.nrepl-port
 .DS_Store
 *.html
+.#*
 img
