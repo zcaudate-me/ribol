@@ -1,11 +1,9 @@
 (ns ribol.cljs)
 
 (defmacro error
-  ([e] `(throw (js/Error. (str ~e))))
+  ([e] (list 'throw (list 'js/Error. (list 'str e))))
   ([e & more]
-     `(throw (js/Error. (str ~e ~@more)))))
-
-(def on-any)
+    (list 'throw (list 'js/Error. (concat (list 'str e) more)))))
 
 (defmacro continue [& body]
  `{::type :continue ::value (do ~@body)})
@@ -30,7 +28,7 @@
   ([k form]
      (and (list? form)
           (symbol? (first form))
-          (contains? (sp-forms k) (first form))))
+          (contains? (get sp-forms k) (first form))))
   ([k form syms]
      (if (list? form)
        (or (get syms (first form)) (is-special-form k form)))))

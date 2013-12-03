@@ -4,16 +4,14 @@
 (def ^:dynamic *managers* [])
 (def ^:dynamic *optmap* {})
 
-(defmacro error
-  ([e] `(throw (js/Exception. (str ~e))))
-  ([e & more]
-     `(throw (js/Exception. (str ~e ~@more)))))
-
 (defn- hash-map?
- [x] (instance? PersistentHashMap x))
+ [x] (or (instance? PersistentArrayMap x)
+         (instance? PersistentHashMap x) 
+         (instance? PersistentTreeMap x)))
 
 (defn- hash-set?
- [x] (instance? PersistentHashSet x))
+ [x] (or (instance? PersistentHashSet x)
+         (instance? PersistentTreeSet x)))
 
 (defn- assoc-if
  ([m k v]
@@ -47,7 +45,7 @@
         (some #(check-contents contents %) chk)
 
         (= '_ chk) true
-        :else (error "CHECK_CONTENTS: " chk " cannot be founde")))
+        :else (error "CHECK_CONTENTS: " chk " cannot be found")))
 
 (defn create-issue
   [contents msg options default]
@@ -107,10 +105,7 @@
                  " has not been implemented")
 
           (= target (:id issue))
-          (try
-            (apply (-> issue :options label) args)
-            (catch clojure.lang.ArityException e
-              (error "RAISE_CHOOSE: Wrong number of arguments to option key " label)))
+          (apply (-> issue :options label) args)
 
           :else
           (throw (create-choose-signal target label args)))))
@@ -149,178 +144,179 @@
       (recur issue (next managers) optmap))
     (raise-unhandled issue optmap)))
 
+(comment
+  (def #^{:doc "Special form to be used inside a 'manage' block.  When
+    any issue is 'raised' from within the manage block, if that error satisfies
+    the checker, then it will either do a 'catch' operation or process the contents
+    of the issue with the following special forms: 'continue', 'escalate', 'choose' or 'default'"
+          :arglists '([checker params special-form]
+                      [checker params & body])}
+    on)
 
-(def #^{:doc "Special form to be used inside a 'manage' block.  When
-  any issue is 'raised' from within the manage block, if that error satisfies
-  the checker, then it will either do a 'catch' operation or process the contents
-  of the issue with the following special forms: 'continue', 'escalate', 'choose' or 'default'"
-        :arglists '([checker params special-form]
-                    [checker params & body])}
-  on)
+  (def #^{:doc "Special form to be used inside 'manage' 'raise' or 'escalate' blocks. It
+    provides a label and a function body to be set up within a managed scope."
+          :arglists '[label args & body]}
+    option)
 
-(def #^{:doc "Special form to be used inside 'manage' 'raise' or 'escalate' blocks. It
-  provides a label and a function body to be set up within a managed scope."
-        :arglists '[label args & body]}
-  option)
+  (def #^{:doc "Special form to be used inside 'manange', 'raise-on', 'raise-on-all' and 'anticipate' blocks."
+          :arglists '[label args & body]}
+    catch)
 
-(def #^{:doc "Special form to be used inside 'manange', 'raise-on', 'raise-on-all' and 'anticipate' blocks."
-        :arglists '[label args & body]}
-  catch)
+  (def #^{:doc "Special form to be used inside 'manange', 'raise-on', 'raise-on-all' and 'anticipate' blocks."
+          :arglists '[label args & body]}
+    finally)
 
-(def #^{:doc "Special form to be used inside 'manange', 'raise-on', 'raise-on-all' and 'anticipate' blocks."
-        :arglists '[label args & body]}
-  finally)
+  (def sp-forms {:anticipate #{#'catch #'finally}
+                 :raise #{#'option #'default #'catch #'finally}
+                 :raise-on #{#'option #'default #'catch #'finally}
+                 :manage #{#'on #'on-any #'option}})
 
-(def sp-forms {:anticipate #{#'catch #'finally}
-               :raise #{#'option #'default #'catch #'finally}
-               :raise-on #{#'option #'default #'catch #'finally}
-               :manage #{#'on #'on-any #'option}})
+  (defmacro raise
+    "Raise an issue with the content to be either a keyword, hashmap or vector, optional message
+    and raise-forms - 'option' and 'default'"
+    [content & [msg & forms]]
+    (let [[msg forms] (if (is-special-form :raise msg)
+                        ["" (cons msg forms)]
+                        [msg forms])
+          options (parse-option-forms forms)
+          default (parse-default-form forms)]
+      `(let [issue# (create-issue ~content ~msg ~options ~default)]
+         (raise-loop issue#  *managers*
+                     (merge (:optmap issue#) *optmap*)))))
 
-(defmacro raise
-  "Raise an issue with the content to be either a keyword, hashmap or vector, optional message
-  and raise-forms - 'option' and 'default'"
-  [content & [msg & forms]]
-  (let [[msg forms] (if (is-special-form :raise msg)
-                      ["" (cons msg forms)]
-                      [msg forms])
-        options (parse-option-forms forms)
-        default (parse-default-form forms)]
-    `(let [issue# (create-issue ~content ~msg ~options ~default)]
-       (raise-loop issue#  *managers*
-                   (merge (:optmap issue#) *optmap*)))))
+  (defn- manage-apply [f args label]
+    (try
+      (apply f args)
+      (catch clojure.lang.ArityException e
+        (error "MANAGE-APPLY: Wrong number of arguments to option key: " label))))
 
-(defn- manage-apply [f args label]
-  (try
-    (apply f args)
-    (catch clojure.lang.ArityException e
-      (error "MANAGE-APPLY: Wrong number of arguments to option key: " label))))
+  (defn manage-signal [manager ex]
+    (let [data (ex-data ex)]
+      (cond (not= (:id manager) (::target data))
+            (throw ex)
 
-(defn manage-signal [manager ex]
-  (let [data (ex-data ex)]
-    (cond (not= (:id manager) (::target data))
-          (throw ex)
+            (= :choose (::signal data))
+            (let [label (::label data)
+                  f (get (:options manager) label)
+                  args (::args data)]
+              (manage-apply f args label))
 
-          (= :choose (::signal data))
-          (let [label (::label data)
-                f (get (:options manager) label)
-                args (::args data)]
-            (manage-apply f args label))
+            (= :catch (::signal data))
+            (::value data)
 
-          (= :catch (::signal data))
-          (::value data)
+            :else (throw ex))))
 
-          :else (throw ex))))
+  (defn- parse-on [chk params body]
+    (let [bind (cond (vector? params)   [{:keys params}]
+                     (hash-map? params) [params]
+                     (symbol? params)    [params]
+                     :else (error "params " params " should be a vector hashmap or symbol"))]
 
-(defn- parse-on [chk params body]
-  (let [bind (cond (vector? params)   [{:keys params}]
-                   (hash-map? params) [params]
-                   (symbol? params)    [params]
-                   :else (error "params " params " should be a vector hashmap or symbol"))]
+      {:checker chk
+       :fn `(fn ~bind ~@body)}))
 
-    {:checker chk
-     :fn `(fn ~bind ~@body)}))
+  (defn- parse-on-handler-forms [forms]
+    (vec (for [[type chk params & body] forms
+               :when (= (resolve type) #'on)]
+           (let [chk (if (= chk '_) (quote '_) chk)]
+             (parse-on chk params body)))))
 
-(defn- parse-on-handler-forms [forms]
-  (vec (for [[type chk params & body] forms
-             :when (= (resolve type) #'on)]
-         (let [chk (if (= chk '_) (quote '_) chk)]
-           (parse-on chk params body)))))
+  (defn- parse-on-any-handler-forms [forms]
+    (vec (for [[type params & body] forms
+               :when (= (resolve type) #'on-any)]
+           (parse-on (quote '_)  params body))))
 
-(defn- parse-on-any-handler-forms [forms]
-  (vec (for [[type params & body] forms
-             :when (= (resolve type) #'on-any)]
-         (parse-on (quote '_)  params body))))
+  (defn- parse-try-forms [forms]
+    (for [[type & body :as fform] forms
+          :when (or (#{'finally 'catch} type)
+                    (#{#'finally #'catch} (resolve type)))]
+      fform))
 
-(defn- parse-try-forms [forms]
-  (for [[type & body :as fform] forms
-        :when (or (#{'finally 'catch} type)
-                  (#{#'finally #'catch} (resolve type)))]
-    fform))
+  (defmacro manage
+    "This creats the 'manage' dynamic scope form. The body will be executed
+    in a dynamic context that allows handling of issues with 'on' and 'option' forms."
+    [& forms]
+    (let [sp-fn #(is-special-form :manage % #{'finally 'catch})
+          body-forms (vec (filter (complement sp-fn) forms))
+          sp-forms (filter sp-fn forms)
+          id (keyword (gensym))
+          options  (parse-option-forms sp-forms)
+          on-handlers (parse-on-handler-forms sp-forms)
+          on-any-handlers (parse-on-any-handler-forms sp-forms)
+          try-forms (parse-try-forms sp-forms)
+          optmap (zipmap (keys options) (repeat id))
+          manager {:id id
+                   :handlers (vec (concat on-handlers on-any-handlers))
+                   :options options}]
+      `(binding [*managers* (cons ~manager *managers*)
+                 *optmap* (merge ~optmap *optmap*)]
+         (try
+           ~@body-forms
+           (catch clojure.lang.ExceptionInfo ~'ex
+             (manage-signal ~manager ~'ex))
+           ~@try-forms))))
 
-(defmacro manage
-  "This creats the 'manage' dynamic scope form. The body will be executed
-  in a dynamic context that allows handling of issues with 'on' and 'option' forms."
-  [& forms]
-  (let [sp-fn #(is-special-form :manage % #{'finally 'catch})
-        body-forms (vec (filter (complement sp-fn) forms))
-        sp-forms (filter sp-fn forms)
-        id (keyword (gensym))
-        options  (parse-option-forms sp-forms)
-        on-handlers (parse-on-handler-forms sp-forms)
-        on-any-handlers (parse-on-any-handler-forms sp-forms)
-        try-forms (parse-try-forms sp-forms)
-        optmap (zipmap (keys options) (repeat id))
-        manager {:id id
-                 :handlers (vec (concat on-handlers on-any-handlers))
-                 :options options}]
-    `(binding [*managers* (cons ~manager *managers*)
-               *optmap* (merge ~optmap *optmap*)]
-       (try
-         ~@body-forms
-         (catch clojure.lang.ExceptionInfo ~'ex
-           (manage-signal ~manager ~'ex))
-         ~@try-forms))))
+  (defn- make-catch-forms [exceptions sp-forms]
+    (cons
+     `(catch clojure.lang.ExceptionInfo e#
+        (raise [(ex-data e#) {:origin e#}] ~@sp-forms))
+     (map (fn [ex]
+            `(catch ~(:type ex) t#
+               (raise [~(:content ex) {:origin t#}] ~@sp-forms)))
+          exceptions)))
 
-(defn- make-catch-forms [exceptions sp-forms]
-  (cons
-   `(catch clojure.lang.ExceptionInfo e#
-      (raise [(ex-data e#) {:origin e#}] ~@sp-forms))
-   (map (fn [ex]
-          `(catch ~(:type ex) t#
-             (raise [~(:content ex) {:origin t#}] ~@sp-forms)))
-        exceptions)))
+  (defn- make-catch-elem [[ex content]]
+    (cond (symbol? ex) [{:type ex :content content}]
+          (vector? ex) (map (fn [t] {:type t :content content})
+                                    ex)
+          :else (error "RAISE_ON: " ex
+                       " can only be a classname or vector of classnames")))
 
-(defn- make-catch-elem [[ex content]]
-  (cond (symbol? ex) [{:type ex :content content}]
-        (vector? ex) (map (fn [t] {:type t :content content})
-                                  ex)
-        :else (error "RAISE_ON: " ex
-                     " can only be a classname or vector of classnames")))
+  (defn- make-catch-list [bindings]
+    (mapcat make-catch-elem (partition 2 bindings)))
 
-(defn- make-catch-list [bindings]
-  (mapcat make-catch-elem (partition 2 bindings)))
+  (defmacro raise-on
+    "Raises an issue with options and defaults when an exception is encountered
+    when the body has been evaluated"
+    [bindings form & forms]
+    (let [exceptions (make-catch-list bindings)
+          raise-on-fn #(is-special-form :raise-on % #{'catch 'finally})
+          raise-fn    #(is-special-form :raise % #{'catch 'finally})
+          forms (cons form forms)
+          body-forms (filter (complement raise-on-fn) forms)
+          raise-on-forms (filter raise-on-fn forms)
+          try-forms (filter (complement raise-fn) raise-on-forms)
+          raise-forms (filter raise-fn raise-on-forms)
+          catch-forms (make-catch-forms exceptions raise-forms)]
+      `(try ~@body-forms ~@catch-forms ~@try-forms)))
 
-(defmacro raise-on
-  "Raises an issue with options and defaults when an exception is encountered
-  when the body has been evaluated"
-  [bindings form & forms]
-  (let [exceptions (make-catch-list bindings)
-        raise-on-fn #(is-special-form :raise-on % #{'catch 'finally})
-        raise-fn    #(is-special-form :raise % #{'catch 'finally})
-        forms (cons form forms)
-        body-forms (filter (complement raise-on-fn) forms)
-        raise-on-forms (filter raise-on-fn forms)
-        try-forms (filter (complement raise-fn) raise-on-forms)
-        raise-forms (filter raise-fn raise-on-forms)
-        catch-forms (make-catch-forms exceptions raise-forms)]
-    `(try ~@body-forms ~@catch-forms ~@try-forms)))
+  (defmacro raise-on-all [content form & forms]
+    "Raises an issue with options and defaults when any exception is encountered
+    as the body is being evaluated"
+    `(raise-on [Throwable ~content] ~form ~@forms))
 
-(defmacro raise-on-all [content form & forms]
-  "Raises an issue with options and defaults when any exception is encountered
-  as the body is being evaluated"
-  `(raise-on [Throwable ~content] ~form ~@forms))
+  (defn- parse-anticipate-pair [[extype res]]
+    (cond (hash-set? extype)
+          (mapcat #(parse-anticipate-pair [% res]) extype)
 
-(defn- parse-anticipate-pair [[extype res]]
-  (cond (hash-set? extype)
-        (mapcat #(parse-anticipate-pair [% res]) extype)
+          (symbol? extype)
+          `((catch ~extype t# ~res))
 
-        (symbol? extype)
-        `((catch ~extype t# ~res))
+          (or (keyword? extype) (hash-map? extype) (vector? extype))
+          `((catch clojure.lang.ExceptionInfo t#
+              (if (check-contents (ex-data t#)
+                                  ~extype)
+                ~res
+                (throw t#))))))
 
-        (or (keyword? extype) (hash-map? extype) (vector? extype))
-        `((catch clojure.lang.ExceptionInfo t#
-            (if (check-contents (ex-data t#)
-                                ~extype)
-              ~res
-              (throw t#))))))
-
-(defmacro anticipate [exvec & body]
-  "Anticipates exceptions and decides what to do with them"
-  (let [pairs (partition 2 exvec)
-        anticipate-fn    #(is-special-form :anticipate % #{'catch 'finally})
-        body-forms (filter (complement anticipate-fn) body)
-        try-forms (filter anticipate-fn body)
-        catches (mapcat parse-anticipate-pair pairs)]
-    `(try ~@body-forms
-          ~@catches
-          ~@try-forms)))
+  (defmacro anticipate [exvec & body]
+    "Anticipates exceptions and decides what to do with them"
+    (let [pairs (partition 2 exvec)
+          anticipate-fn    #(is-special-form :anticipate % #{'catch 'finally})
+          body-forms (filter (complement anticipate-fn) body)
+          try-forms (filter anticipate-fn body)
+          catches (mapcat parse-anticipate-pair pairs)]
+      `(try ~@body-forms
+            ~@catches
+            ~@try-forms)))
+)
