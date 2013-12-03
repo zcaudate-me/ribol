@@ -1,5 +1,5 @@
-(ns ribol.cljs.core
-  (:use-macros [ribol.cljs.core :only [error]]))
+(ns ribol.cljs
+  (:use-macros [ribol.cljs :only [error]]))
 
 (def ^:dynamic *managers* [])
 (def ^:dynamic *optmap* {})

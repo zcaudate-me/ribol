@@ -9,7 +9,7 @@
   :test-paths ["test/clj"]
   :documentation {:files {"docs/index"
                           {:input "test/midje_doc/ribol_guide.clj"
-                           :title "ribol" rib
+                           :title "ribol"
                            :sub-title "conditional restarts for clojure"
                            :author "Chris Zheng"
                            :email  "z@caudate.me"

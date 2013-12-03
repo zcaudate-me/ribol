@@ -1,4 +1,4 @@
-(ns ribol.cljs.core)
+(ns ribol.cljs)
 
 (defmacro error
   ([e] `(throw (js/Error. (str ~e))))
@@ -21,13 +21,16 @@
  ([contents]
     `{::type :fail ::contents ~contents}))
 
-
+(def sp-forms {:anticipate #{'catch 'finally}
+               :raise #{'option 'default 'catch 'finally}
+               :raise-on #{'option 'default 'catch 'finally}
+               :manage #{'on 'on-any 'option}})
 
 (defn- is-special-form
   ([k form]
      (and (list? form)
           (symbol? (first form))
-          (contains? (sp-forms k) (resolve (first form)))))
+          (contains? (sp-forms k) (first form))))
   ([k form syms]
      (if (list? form)
        (or (get syms (first form)) (is-special-form k form)))))
@@ -35,14 +38,14 @@
 (defn- parse-option-forms [forms]
   (into {}
         (for [[type key & body] forms
-              :when (= (resolve type) #'option)]
+              :when (= type 'option)]
           [key `(fn ~@body)])))
 
 (defn- parse-default-form [forms]
   (if-let [default (->> forms
                         (filter
                          (fn [[type]]
-                           (= (resolve type) #'default)))
+                           (= type 'default)))
                         (last)
                         (next))]
     (vec default)))
@@ -56,3 +59,17 @@
       ::contents ~contents
       ::options ~(parse-option-forms forms)
       ::default ~(parse-default-form forms)}))
+
+
+#_(defmacro raise
+  "Raise an issue with the content to be either a keyword, hashmap or vector, optional message
+  and raise-forms - 'option' and 'default'"
+  [content & [msg & forms]]
+  (let [[msg forms] (if (is-special-form :raise msg)
+                      ["" (cons msg forms)]
+                      [msg forms])
+        options (parse-option-forms forms)
+        default (parse-default-form forms)]
+    `(let [issue# (create-issue ~content ~msg ~options ~default)]
+       (raise-loop issue#  *managers*
+                   (merge (:optmap issue#) *optmap*)))))
