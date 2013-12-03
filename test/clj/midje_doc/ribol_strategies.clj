@@ -193,7 +193,7 @@
   "This is an example of higher-tier managers
    overriding options"
    [[{:title "Choose Default :X2"}]]
-
+   
   (manage                            ;; L2
    [1 2 (manage                      ;; L1
          (raise :A                   ;; L0

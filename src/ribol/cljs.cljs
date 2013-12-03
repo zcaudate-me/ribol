@@ -144,118 +144,47 @@
       (recur issue (next managers) optmap))
     (raise-unhandled issue optmap)))
 
+(def #^{:doc "Special form to be used inside a 'manage' block.  When
+  any issue is 'raised' from within the manage block, if that error satisfies
+  the checker, then it will either do a 'catch' operation or process the contents
+  of the issue with the following special forms: 'continue', 'escalate', 'choose' or 'default'"
+        :arglists '([checker params special-form]
+                    [checker params & body])}
+  on)
+
+(def #^{:doc "Special form to be used inside 'manage' 'raise' or 'escalate' blocks. It
+  provides a label and a function body to be set up within a managed scope."
+        :arglists '[label args & body]}
+  option)
+
+(def #^{:doc "Special form to be used inside 'manange', 'raise-on', 'raise-on-all' and 'anticipate' blocks."
+        :arglists '[label args & body]}
+  catch)
+
+(def #^{:doc "Special form to be used inside 'manange', 'raise-on', 'raise-on-all' and 'anticipate' blocks."
+        :arglists '[label args & body]}
+  finally)
+
+(defn- manage-apply [f args label]
+  (f args))
+
+(defn manage-signal [manager ex]
+  (let [data (ex-data ex)]
+    (cond (not= (:id manager) (::target data))
+          (throw ex)
+
+          (= :choose (::signal data))
+          (let [label (::label data)
+                f (get (:options manager) label)
+                args (::args data)]
+            (manage-apply f args label))
+
+          (= :catch (::signal data))
+          (::value data)
+
+          :else (throw ex))))
+
 (comment
-  (def #^{:doc "Special form to be used inside a 'manage' block.  When
-    any issue is 'raised' from within the manage block, if that error satisfies
-    the checker, then it will either do a 'catch' operation or process the contents
-    of the issue with the following special forms: 'continue', 'escalate', 'choose' or 'default'"
-          :arglists '([checker params special-form]
-                      [checker params & body])}
-    on)
-
-  (def #^{:doc "Special form to be used inside 'manage' 'raise' or 'escalate' blocks. It
-    provides a label and a function body to be set up within a managed scope."
-          :arglists '[label args & body]}
-    option)
-
-  (def #^{:doc "Special form to be used inside 'manange', 'raise-on', 'raise-on-all' and 'anticipate' blocks."
-          :arglists '[label args & body]}
-    catch)
-
-  (def #^{:doc "Special form to be used inside 'manange', 'raise-on', 'raise-on-all' and 'anticipate' blocks."
-          :arglists '[label args & body]}
-    finally)
-
-  (def sp-forms {:anticipate #{#'catch #'finally}
-                 :raise #{#'option #'default #'catch #'finally}
-                 :raise-on #{#'option #'default #'catch #'finally}
-                 :manage #{#'on #'on-any #'option}})
-
-  (defmacro raise
-    "Raise an issue with the content to be either a keyword, hashmap or vector, optional message
-    and raise-forms - 'option' and 'default'"
-    [content & [msg & forms]]
-    (let [[msg forms] (if (is-special-form :raise msg)
-                        ["" (cons msg forms)]
-                        [msg forms])
-          options (parse-option-forms forms)
-          default (parse-default-form forms)]
-      `(let [issue# (create-issue ~content ~msg ~options ~default)]
-         (raise-loop issue#  *managers*
-                     (merge (:optmap issue#) *optmap*)))))
-
-  (defn- manage-apply [f args label]
-    (try
-      (apply f args)
-      (catch clojure.lang.ArityException e
-        (error "MANAGE-APPLY: Wrong number of arguments to option key: " label))))
-
-  (defn manage-signal [manager ex]
-    (let [data (ex-data ex)]
-      (cond (not= (:id manager) (::target data))
-            (throw ex)
-
-            (= :choose (::signal data))
-            (let [label (::label data)
-                  f (get (:options manager) label)
-                  args (::args data)]
-              (manage-apply f args label))
-
-            (= :catch (::signal data))
-            (::value data)
-
-            :else (throw ex))))
-
-  (defn- parse-on [chk params body]
-    (let [bind (cond (vector? params)   [{:keys params}]
-                     (hash-map? params) [params]
-                     (symbol? params)    [params]
-                     :else (error "params " params " should be a vector hashmap or symbol"))]
-
-      {:checker chk
-       :fn `(fn ~bind ~@body)}))
-
-  (defn- parse-on-handler-forms [forms]
-    (vec (for [[type chk params & body] forms
-               :when (= (resolve type) #'on)]
-           (let [chk (if (= chk '_) (quote '_) chk)]
-             (parse-on chk params body)))))
-
-  (defn- parse-on-any-handler-forms [forms]
-    (vec (for [[type params & body] forms
-               :when (= (resolve type) #'on-any)]
-           (parse-on (quote '_)  params body))))
-
-  (defn- parse-try-forms [forms]
-    (for [[type & body :as fform] forms
-          :when (or (#{'finally 'catch} type)
-                    (#{#'finally #'catch} (resolve type)))]
-      fform))
-
-  (defmacro manage
-    "This creats the 'manage' dynamic scope form. The body will be executed
-    in a dynamic context that allows handling of issues with 'on' and 'option' forms."
-    [& forms]
-    (let [sp-fn #(is-special-form :manage % #{'finally 'catch})
-          body-forms (vec (filter (complement sp-fn) forms))
-          sp-forms (filter sp-fn forms)
-          id (keyword (gensym))
-          options  (parse-option-forms sp-forms)
-          on-handlers (parse-on-handler-forms sp-forms)
-          on-any-handlers (parse-on-any-handler-forms sp-forms)
-          try-forms (parse-try-forms sp-forms)
-          optmap (zipmap (keys options) (repeat id))
-          manager {:id id
-                   :handlers (vec (concat on-handlers on-any-handlers))
-                   :options options}]
-      `(binding [*managers* (cons ~manager *managers*)
-                 *optmap* (merge ~optmap *optmap*)]
-         (try
-           ~@body-forms
-           (catch clojure.lang.ExceptionInfo ~'ex
-             (manage-signal ~manager ~'ex))
-           ~@try-forms))))
-
   (defn- make-catch-forms [exceptions sp-forms]
     (cons
      `(catch clojure.lang.ExceptionInfo e#
