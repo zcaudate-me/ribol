@@ -8,7 +8,7 @@
             [purnam.native :refer [js-type]]
             [purnam.core])
   (:use-macros [purnam.test :only [fact]]
-               [ribol.cljs :only [raise manage choose escalate fail default continue]]))
+               [ribol.cljs :only [raise manage choose escalate fail default continue anticipate raise-on raise-on-all]]))
 
 (defn truthy? [x]
    (= false (not x)))
@@ -248,5 +248,31 @@
                  (continue data))))
           (on :too-big [data]
               (continue (- data))))
-  => [1 2 3 4 5 -6 -7 -8]
-)
+  => [1 2 3 4 5 -6 -7 -8])
+  
+(fact
+  (manage
+    (try (throw (js-obj))
+            (catch ExceptionInfo e#
+              (ribol.cljs/raise [(ex-data e#) {:origin e#}]))
+            (catch js/Object t#
+              (ribol.cljs/raise [:divide-by-zero {:origin t#}])))
+    (on :divide-by-zero [] 2))
+  => 2
+  
+  (manage
+    (raise-on [js/Object :divide-by-zero]
+      (throw (js-obj)))
+    (on :divide-by-zero [] 2))
+  => 2
+  
+  (manage
+      (raise-on-all :divide-by-zero
+        (throw (js-obj)))
+      (on :divide-by-zero [] 2))
+  => 2
+  
+  (anticipate [js/Object :hello]
+              (throw (js-obj)))
+  => :hello
+  )

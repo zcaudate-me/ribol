@@ -1,7 +1,10 @@
 (ns ribol.cljs)
 
 (defn- hash-map?
- [x] (instance? clojure.lang.APersistentMap x))
+  [x] (instance? clojure.lang.APersistentMap x))
+
+(defn- hash-set?
+ [x] (instance? clojure.lang.APersistentSet x))
 
 (defmacro error
   ([e] (list 'throw (list 'js/Error. (list 'str e))))
@@ -123,3 +126,68 @@
         [(list 'catch 'ExceptionInfo 'ex#
           (list 'ribol.cljs/manage-signal manager 'ex#))]
         try-forms))))
+
+(defn- make-catch-forms [exceptions sp-forms]
+    (cons
+     (list 'catch 'ExceptionInfo 'e#
+                 (concat '[ribol.cljs/raise [(ex-data e#) {:origin e#}]] sp-forms))
+     (map (fn [ex]
+            (list 'catch (:type ex) 't#
+                  (concat ['ribol.cljs/raise [(:content ex) {:origin 't#}]] sp-forms)))
+          exceptions)))
+
+(defn- make-catch-elem [[ex content]]
+    (cond (symbol? ex) [{:type ex :content content}]
+          (vector? ex) (map (fn [t] {:type t :content content})
+                            ex)
+          :else (throw (Exception.
+                         (str "RAISE_ON: " ex
+                              " can only be a classname or vector of classnames")))))
+
+(defn- make-catch-list [bindings]
+  (mapcat make-catch-elem (partition 2 bindings)))
+
+(defmacro raise-on
+    "Raises an issue with options and defaults when an exception is encountered
+  when the body has been evaluated"
+    [bindings form & forms]
+    (let [exceptions (make-catch-list bindings)
+          raise-on-fn #(is-special-form :raise-on % #{'catch 'finally})
+          raise-fn    #(is-special-form :raise % #{'catch 'finally})
+          forms (cons form forms)
+          body-forms (filter (complement raise-on-fn) forms)
+          raise-on-forms (filter raise-on-fn forms)
+          try-forms (filter (complement raise-fn) raise-on-forms)
+          raise-forms (filter raise-fn raise-on-forms)
+          catch-forms (make-catch-forms exceptions raise-forms)]
+      `(try ~@body-forms ~@catch-forms ~@try-forms)))
+
+(defmacro raise-on-all [content form & forms]
+  "Raises an issue with options and defaults when any exception is encountered
+  as the body is being evaluated"
+  (concat ['ribol.cljs/raise-on ['js/Object content] form] forms))
+
+(defn- parse-anticipate-pair [[extype res]]
+  (cond (hash-set? extype)
+        (mapcat #(parse-anticipate-pair [% res]) extype)
+
+        (symbol? extype)
+        `((catch ~extype t# ~res))
+
+        (or (keyword? extype) (hash-map? extype) (vector? extype))
+        `((catch ~'ExceptionInfo t#
+            (if (check-contents (ex-data t#)
+                                ~extype)
+              ~res
+              (throw t#))))))
+
+(defmacro anticipate [exvec & body]
+  "Anticipates exceptions and decides what to do with them"
+  (let [pairs (partition 2 exvec)
+        anticipate-fn    #(is-special-form :anticipate % #{'catch 'finally})
+        body-forms (filter (complement anticipate-fn) body)
+        try-forms (filter anticipate-fn body)
+        catches (mapcat parse-anticipate-pair pairs)]
+    `(try ~@body-forms
+          ~@catches
+          ~@try-forms)))
