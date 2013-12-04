@@ -3,6 +3,7 @@
 /classes
 /checkouts
 /docs
+/harness
 pom.xml
 pom.xml.asc
 *.jar
