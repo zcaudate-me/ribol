@@ -2,7 +2,7 @@
 
 `ribol` is a conditional restart library for clojure and clojurescript inspired by `errorkit`
 
-[![Build Status](https://travis-ci.org/zcaudate/purnam.png?branch=master)](https://travis-ci.org/zcaudate/purnam)
+[![Build Status](https://travis-ci.org/zcaudate/ribol.png?branch=master)](https://travis-ci.org/zcaudate/ribol)
 
 ### Installation:
 
