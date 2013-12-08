@@ -1,12 +1,14 @@
-(defproject im.chit/ribol "0.4.0-SNAPSHOT"
+(defproject im.chit/ribol "0.4.0"
   :description "Conditional Restart Library for Clojure"
   :url "http://www.github.com/zcaudate/ribol"
   :license {:name "The MIT License"
             :url "http://http://opensource.org/licenses/MIT"}
   :dependencies [[org.clojure/clojure "1.5.1"]]
-  :profiles {:dev {:dependencies [[midje "1.5.1"]
+  :profiles {:dev {:dependencies [[org.clojure/clojurescript "0.0-2080"]
                                   [im.chit/purnam "0.3.0-SNAPSHOT"]
-                                  [org.clojure/clojurescript "0.0-2060"]]}}
+                                  [midje "1.6.0"]]
+                    :plugins [[lein-midje "3.1.3"]
+                              [lein-cljsbuild "1.0.0"]]}}
   :test-paths ["test/clj"]
   :documentation {:files {"docs/index"
                           {:input "test/midje_doc/ribol_guide.clj"

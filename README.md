@@ -1,12 +1,14 @@
 # ribol
 
-`ribol` is a conditional restart library for clojure inspired by `errorkit`
+`ribol` is a conditional restart library for clojure and clojurescript inspired by `errorkit`
+
+[![Build Status](https://travis-ci.org/zcaudate/purnam.png?branch=master)](https://travis-ci.org/zcaudate/purnam)
 
 ### Installation:
 
 In project.clj, add to dependencies:
 
-     [im.chit/ribol "0.3.3"]
+     [im.chit/ribol "0.4.0"]
 
 ### Documentation
 
@@ -22,17 +24,21 @@ To generate this document for offline use:
 
   2. Install [lein-midje-doc](http://docs.caudate.me/lein-midje-doc). 
   
-  3. Create `doc` folder
-      > mkdir doc
+  3. Create `docs` folder
+      > mkdir docs
 
   4. Run in project folder
   
       > lein midje-doc
 
-The output will be generated in `doc/index.html`
+The output will be generated in `docs/index.html`
 
 
 ## Changes:
+
+#### v0.4.0
+- Clojurescript support!
+- TODO: Docs for clojurescript
 
 #### v0.3.3
 - Allow `catch` clauses in `manage`, `anticipate`, `raise-on` and `raise-on-all`
