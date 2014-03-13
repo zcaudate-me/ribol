@@ -27,7 +27,7 @@ For those that wish to know more about conditional restarts, a comparison of dif
 [[{:numbered false}]]
 (comment  (use 'ribol.core))
 
-[[:file {:src "test/midje_doc/ribol_unlucky_numbers.clj"}]]
+[[:file {:src "test/clj/midje_doc/ribol_unlucky_numbers.clj"}]]
 
 [[:chapter {:title "Conditional Restarts"}]]
 
@@ -107,11 +107,11 @@ Conditional restarts provide a way for the top-level application to more cleanly
 Using these six different different issue resolution directives, the programmer has the richness of language to craft complex process control flow strategies without mixing logic handling code in the middle tier. Restarts can also create new ways of thinking about the problem beyond the standard `throw/catch` mechanism and offer more elegant ways to build programs and workflows.
 "
 
-[[:file {:src "test/midje_doc/ribol_api.clj"}]]
+[[:file {:src "test/clj/midje_doc/ribol_api.clj"}]]
 
-[[:file {:src "test/midje_doc/ribol_strategies.clj"}]]
+[[:file {:src "test/clj/midje_doc/ribol_strategies.clj"}]]
 
-[[:file {:src "test/midje_doc/ribol_implementation.clj"}]]
+[[:file {:src "test/clj/midje_doc/ribol_implementation.clj"}]]
 
 [[:chapter {:title "End Notes"}]]
 

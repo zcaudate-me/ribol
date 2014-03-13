@@ -11,7 +11,7 @@
                               [lein-cljsbuild "1.0.0"]]}}
   :test-paths ["test/clj"]
   :documentation {:files {"docs/index"
-                          {:input "test/midje_doc/ribol_guide.clj"
+                          {:input "test/clj/midje_doc/ribol_guide.clj"
                            :title "ribol"
                            :sub-title "conditional restarts for clojure"
                            :author "Chris Zheng"
