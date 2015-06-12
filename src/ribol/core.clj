@@ -304,10 +304,11 @@
                  :options options}]
     `(binding [*managers* (cons ~manager *managers*)
                *optmap* (merge ~optmap *optmap*)]
-       (try
-         ~@body-forms
-         (catch clojure.lang.ExceptionInfo ~'ex
-           (manage-signal ~manager ~'ex))
+      (try
+        (try
+           ~@body-forms
+           (catch clojure.lang.ExceptionInfo ~'ex
+             (manage-signal ~manager ~'ex)))
          ~@try-forms))))
 
 (defn- make-catch-forms [exceptions sp-forms]

@@ -51,7 +51,11 @@
   (manage
    (raise :error)
    (on-any [] 1))
-  => 1)
+  => 1
+  
+  (manage (throw (ex-info "an error" {:my :data}))
+      (catch Throwable t))
+  => nil)
 
 (defn half-int-a [n]
   (if (= 0 (mod n 2))

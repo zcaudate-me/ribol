@@ -120,11 +120,13 @@
                 :options options}]
    (list 'binding ['ribol.cljs/*managers* (list 'cons manager 'ribol.cljs/*managers*)
                    'ribol.cljs/*optmap* (list 'merge optmap 'ribol.cljs/*optmap*)]
-      (concat
-        ['try]
-        body-forms
-        [(list 'catch 'ExceptionInfo 'ex#
-          (list 'ribol.cljs/manage-signal manager 'ex#))]
+      (concat 
+        ['try
+         (concat
+           ['try]
+           body-forms
+           [(list 'catch 'ExceptionInfo 'ex#
+            (list 'ribol.cljs/manage-signal manager 'ex#))])]
         try-forms))))
 
 (defn- make-catch-forms [exceptions sp-forms]
