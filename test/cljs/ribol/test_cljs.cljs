@@ -95,7 +95,12 @@
   (manage
     [1 2 (raise :error)]
     (on :error [] 
-      (continue 3))) => [1 2 3])
+      (continue 3))) => [1 2 3]
+  
+  (manage
+    (throw (ex-info {:hello "there"} "yay"))
+    (catch ExceptionInfo e))
+  => nil)
       
 (fact "strategies"
   (manage                          ;; L2

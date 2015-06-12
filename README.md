@@ -8,7 +8,7 @@
 
 In project.clj, add to dependencies:
 
-     [im.chit/ribol "0.4.0"]
+     [im.chit/ribol "0.4.1"]
 
 ### Documentation
 
@@ -35,6 +35,9 @@ The output will be generated in `docs/index.html`
 
 
 ## Changes:
+
+#### v0.4.1
+- Bugfix
 
 #### v0.4.0
 - Clojurescript support!
