@@ -4,6 +4,10 @@
 
 [![Build Status](https://travis-ci.org/zcaudate/ribol.png?branch=master)](https://travis-ci.org/zcaudate/ribol)
 
+## DEPRECATION NOTICE
+
+[ribol](https://github.com/zcaudate/ribol) has been merged into [hara](https://github.com/zcaudate/hara). Please see [updated docs](http://docs.caudate.me/hara/hara-event.html) for the most recent version.
+
 ### Installation:
 
 In project.clj, add to dependencies:
